@@ -416,6 +416,67 @@
   @keyframes pista{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 3px #b79bff}
     50%{box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 8px #ffe066,0 0 22px 8px rgba(255,224,102,.9)}}
 
+  /* ---------- NIVEL 4: CIUDAD DE FIGURAS ---------- */
+  #nivel4{position:relative;z-index:10;height:100%;display:flex;flex-direction:column;align-items:center;
+    gap:clamp(4px,1.2vh,12px);padding:10px;overflow-y:auto;user-select:none;-webkit-user-select:none;
+    padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  #nivel4::before,#nivel4::after{content:"";flex:1 0 0}
+  .c-fondo{position:fixed;inset:0;z-index:-1;overflow:hidden;background:linear-gradient(180deg,#8fd8ff 0%,#e9f8ff 75%)}
+  .c-skyline{position:absolute;left:0;right:0;bottom:15%;width:100%;height:26%}
+  .c-calle{position:absolute;left:0;right:0;bottom:0;height:16%;border-top:8px solid #8a93a8;
+    background:linear-gradient(#6b7385,#555d70)}
+  .c-calle::after{content:"";position:absolute;left:0;right:0;top:46%;height:6px;
+    background:repeating-linear-gradient(90deg,#fff 0 36px,transparent 36px 72px)}
+  .n1-titulo.c-tit{-webkit-text-stroke-color:#8b5cf6}
+  #nivel4 .f-globo{border-color:#8b5cf6}
+  #nivel4 .f-globo::before{border-right-color:#8b5cf6}
+  #nivel4 .f-quiero{color:#8b5cf6}
+  .c-nom{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#3d3d6b;font-size:clamp(18px,4vh,34px);line-height:1}
+
+  .c-ciudad{display:flex;align-items:center;gap:clamp(5px,1vw,10px);background:rgba(255,255,255,.7);
+    border-radius:22px;padding:4px clamp(8px,1.6vw,14px);box-shadow:0 4px 0 rgba(0,0,0,.1);max-width:96vw;
+    flex-wrap:wrap;justify-content:center}
+  .c-mini{width:clamp(50px,9.5vw,88px);aspect-ratio:100/72;border-radius:10px;overflow:hidden;
+    border:3px solid #fff;background:linear-gradient(#bfe9ff,#eaf8ff);display:grid;place-items:center;
+    box-shadow:0 0 0 2px #b79bff;font-size:clamp(18px,3.4vw,30px);line-height:1}
+  .c-mini svg{display:block;width:100%;height:100%}
+  .c-mini.futuro{opacity:.65;filter:grayscale(.3)}
+  .c-mini.actual{box-shadow:0 0 0 3px #ffb703;animation:latido 1.2s ease-in-out infinite}
+  .c-mini.nuevo{animation:pop .5s cubic-bezier(.2,1.8,.4,1)}
+
+  .c-mesa{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(10px,2.4vw,28px);width:100%}
+  .c-escena{position:relative;width:min(94vw,calc(46vh*1.389),620px);aspect-ratio:100/72;
+    border-radius:clamp(16px,3vw,28px);overflow:hidden;border:clamp(5px,.8vw,9px) solid #fff;
+    background:linear-gradient(#8fd8ff,#e6f7ff);box-shadow:0 0 0 3px #b79bff,0 10px 0 rgba(0,0,0,.16)}
+  .c-escena.terminado{animation:latido .6s ease-in-out 2}
+  #cSvg,#cSvg svg{display:block;width:100%;height:100%}
+  #cBrillos{position:absolute;inset:0;pointer-events:none}
+  .hueco{stroke-linejoin:round;animation:hueco 1.4s ease-in-out infinite}
+  .hueco.sobre{fill-opacity:.6;stroke:#ff9f1c}
+  .hueco.pista{stroke:#ff9f1c;stroke-width:1.6;animation:hueco-pista .45s ease-in-out infinite alternate}
+  .parte.nueva{transform-box:fill-box;transform-origin:center;animation:pop .45s cubic-bezier(.2,1.8,.4,1)}
+
+  .c-bandeja{display:flex;flex-wrap:wrap;justify-content:center;align-content:center;
+    gap:clamp(6px,1.4vw,14px);background:rgba(255,255,255,.7);border:4px solid #fff;border-radius:24px;
+    padding:clamp(6px,1.2vh,12px) clamp(8px,1.6vw,16px);box-shadow:0 7px 0 rgba(0,0,0,.14);
+    max-width:min(94vw,520px);min-width:clamp(150px,24vw,220px)}
+  .c-bandeja.bloqueado .c-pieza{pointer-events:none}
+  .c-pieza{--p:clamp(44px,min(10vw,9vh),74px);display:flex;flex-direction:column;align-items:center;gap:2px;
+    cursor:grab;touch-action:none;transition:transform .1s;
+    animation:flota-animal 3s ease-in-out infinite;animation-delay:var(--d,0s)}
+  .c-pieza:active{transform:scale(.94)}
+  .c-pieza.usada{visibility:hidden}
+  .c-pieza.sacude{animation:sacudir .5s ease}
+  .c-pf{width:calc(var(--p)*var(--aw));height:calc(var(--p)*var(--ah));filter:drop-shadow(0 4px 0 rgba(0,0,0,.18))}
+  .c-pf svg{display:block;width:100%;height:100%;overflow:visible}
+  .c-pn{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#3d3d6b;font-size:clamp(11px,1.8vw,16px)}
+  .c-fantasma{position:fixed;z-index:70;pointer-events:none;transform:translate(-50%,-50%);
+    filter:drop-shadow(0 8px 6px rgba(0,0,0,.3))}
+  .c-fantasma svg{display:block;width:100%;height:100%;overflow:visible}
+
+  @keyframes hueco{0%,100%{stroke-opacity:.5}50%{stroke-opacity:1}}
+  @keyframes hueco-pista{from{fill-opacity:.28}to{fill-opacity:.8}}
+
   /* ---------- ANIMACIONES ---------- */
   @keyframes girar{to{transform:rotate(360deg)}}
   @keyframes pulso{50%{transform:scale(1.06)}}
@@ -601,6 +662,40 @@
   <div class="f-acciones">
     <button class="btn btn-azul btn-chico" id="btnN3Vaciar" type="button">Vaciar</button>
   </div>
+</section>
+
+<section id="nivel4" class="oculto" aria-label="Nivel 4: ciudad de figuras">
+  <div class="c-fondo" aria-hidden="true">
+    <svg class="c-skyline" viewBox="0 0 100 26" preserveAspectRatio="none">
+      <g fill="#c3dcf3">
+        <rect x="2" y="10" width="8" height="16"/><rect x="12" y="3" width="10" height="23"/>
+        <rect x="24" y="12" width="7" height="14"/><rect x="33" y="6" width="9" height="20"/>
+        <rect x="45" y="14" width="8" height="12"/><rect x="55" y="1" width="11" height="25"/>
+        <rect x="68" y="11" width="8" height="15"/><rect x="78" y="5" width="10" height="21"/>
+        <rect x="90" y="13" width="8" height="13"/>
+      </g>
+    </svg>
+    <div class="c-calle"></div>
+  </div>
+
+  <button class="btn-volver" id="btnN4Salir" type="button" aria-label="Volver a los temas">&larr; Temas</button>
+  <div class="n1-cabecera">
+    <h2 class="n1-titulo c-tit">Ciudad de figuras</h2>
+    <div class="estrellas" id="n4Estrellas"></div>
+  </div>
+
+  <div class="f-pedido">
+    <div class="f-pers" id="cPers"></div>
+    <div class="f-globo" id="cGlobo"></div>
+  </div>
+
+  <div class="c-ciudad" id="cCiudad"></div>
+
+  <div class="c-mesa">
+    <div class="c-escena" id="cEscena"><div id="cSvg"></div><div id="cBrillos"></div></div>
+    <div class="c-bandeja" id="cBandeja"></div>
+  </div>
+  <div class="l-msg" id="cMensaje" aria-live="polite"></div>
 </section>
 
 <div id="resultado" class="oculto" role="dialog" aria-modal="true"></div>
@@ -1602,6 +1697,288 @@
     if(e.key==='Escape' && !$('nivel3').classList.contains('oculto')) salirNivel3();
   });
 
+  /* =========================================================
+     NIVEL 4: CIUDAD DE FIGURAS (círculos, cuadrados, triángulos, rectángulos)
+     ========================================================= */
+  const FORMAS4 = {cuadrado:'cuadrado', circulo:'círculo', triangulo:'triángulo', rectangulo:'rectángulo'};
+  /* proporción de cada figura en la bandeja (ancho, alto) */
+  const DIM4 = {cuadrado:{w:1,h:1}, circulo:{w:1,h:1}, triangulo:{w:1.1,h:1}, rectangulo:{w:1.7,h:.85}};
+
+  /* Cada construcción se dibuja en un lienzo de 100 x 72.
+     f = figura, x,y = esquina, w,h = tamaño, c = color */
+  const CONSTRUCCIONES = [
+    {nombre:'la casita', partes:[
+      {f:'cuadrado',   x:36, y:30, w:28, h:28, c:'#ffb703'},
+      {f:'triangulo',  x:30, y:13, w:40, h:18, c:'#e63946'}]},
+    {nombre:'una casa con puerta y ventanas', partes:[
+      {f:'cuadrado',   x:35, y:28, w:30, h:30, c:'#4fc3ff'},
+      {f:'triangulo',  x:29, y:11, w:42, h:18, c:'#e63946'},
+      {f:'rectangulo', x:46, y:42, w:8,  h:16, c:'#8d5a2b'},
+      {f:'circulo',    x:38, y:33, w:8,  h:8,  c:'#fff3a0'},
+      {f:'circulo',    x:54, y:33, w:8,  h:8,  c:'#fff3a0'}]},
+    {nombre:'el edificio', partes:[
+      {f:'rectangulo', x:30, y:8,  w:40, h:50, c:'#6c8cff'},
+      {f:'circulo',    x:45, y:10, w:10, h:10, c:'#ff9f1c'},
+      {f:'cuadrado',   x:37, y:24, w:8,  h:8,  c:'#fff3a0'},
+      {f:'cuadrado',   x:55, y:24, w:8,  h:8,  c:'#fff3a0'},
+      {f:'cuadrado',   x:37, y:36, w:8,  h:8,  c:'#fff3a0'},
+      {f:'cuadrado',   x:55, y:36, w:8,  h:8,  c:'#fff3a0'},
+      {f:'rectangulo', x:45, y:44, w:10, h:14, c:'#8d5a2b'}]},
+    {nombre:'el parque', partes:[
+      {f:'rectangulo', x:22, y:40, w:6,  h:18, c:'#8d5a2b'},
+      {f:'circulo',    x:14, y:21, w:22, h:22, c:'#3fbf4a'},
+      {f:'rectangulo', x:72, y:40, w:6,  h:18, c:'#8d5a2b'},
+      {f:'circulo',    x:64, y:21, w:22, h:22, c:'#3fbf4a'},
+      {f:'triangulo',  x:37, y:28, w:26, h:24, c:'#ff6bb5'},
+      {f:'rectangulo', x:35, y:50, w:30, h:8,  c:'#ffb703'}]},
+    {nombre:'la escuela', partes:[
+      {f:'rectangulo', x:18, y:28, w:64, h:30, c:'#ff9f1c'},
+      {f:'triangulo',  x:14, y:10, w:72, h:19, c:'#e63946'},
+      {f:'circulo',    x:45, y:17, w:10, h:10, c:'#fff3a0'},
+      {f:'cuadrado',   x:22, y:34, w:9,  h:9,  c:'#4fc3ff'},
+      {f:'cuadrado',   x:33, y:34, w:9,  h:9,  c:'#4fc3ff'},
+      {f:'cuadrado',   x:59, y:34, w:9,  h:9,  c:'#4fc3ff'},
+      {f:'cuadrado',   x:70, y:34, w:9,  h:9,  c:'#4fc3ff'},
+      {f:'rectangulo', x:44, y:40, w:12, h:18, c:'#8d5a2b'}]}
+  ];
+  const MSG_INICIO4 = 'Arrastra cada figura al hueco que tiene su forma.';
+
+  const n4 = {etapa:0, token:0, bloq:true, partes:[], llenos:new Set(), fallos:0, pista:null};
+
+  /* ----- Dibujo con SVG ----- */
+  function formaSVG(p, extra){
+    if(p.f==='circulo')
+      return `<ellipse cx="${p.x+p.w/2}" cy="${p.y+p.h/2}" rx="${p.w/2}" ry="${p.h/2}" ${extra}/>`;
+    if(p.f==='triangulo')
+      return `<polygon points="${p.x+p.w/2},${p.y} ${p.x+p.w},${p.y+p.h} ${p.x},${p.y+p.h}" ${extra}/>`;
+    return `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="1.2" ${extra}/>`;
+  }
+  function escenaSVG(partes, llenos, opc){
+    opc = opc || {};
+    let o = '<svg viewBox="0 0 100 72" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Construcción">';
+    if(!opc.mini){
+      o += '<circle cx="87" cy="12" r="6" fill="#ffd93b"/><circle cx="87" cy="12" r="9" fill="#ffd93b" opacity=".3"/>'+
+           '<g fill="#fff" opacity=".9"><ellipse cx="14" cy="12" rx="9" ry="3.4"/><ellipse cx="19" cy="9.5" rx="5" ry="3.2"/>'+
+           '<ellipse cx="62" cy="8" rx="8" ry="3"/><ellipse cx="67" cy="6" rx="4.5" ry="2.8"/></g>';
+    }
+    o += '<rect x="0" y="58" width="100" height="14" fill="#5fcf55"/><rect x="0" y="58" width="100" height="2" fill="#3fbf4a"/>';
+    partes.forEach((p,i)=>{
+      if(llenos.has(i)){
+        o += formaSVG(p, `fill="${p.c}" stroke="#fff" stroke-width="0.9" stroke-linejoin="round" class="parte ${i===opc.nuevo?'nueva':''}"`);
+      }else{
+        o += formaSVG(p, `fill="${p.c}" fill-opacity=".28" stroke="#6d4fd6" stroke-width="0.9" stroke-dasharray="2.2 1.6" data-i="${i}" class="hueco ${opc.pista===p.f?'pista':''}"`);
+      }
+    });
+    return o + '</svg>';
+  }
+  function piezaSVG(f, c){
+    const at = `fill="${c}" stroke="#fff" stroke-width="4" stroke-linejoin="round" vector-effect="non-scaling-stroke"`;
+    let forma;
+    if(f==='circulo')        forma = `<ellipse cx="50" cy="50" rx="46" ry="46" ${at}/>`;
+    else if(f==='triangulo') forma = `<polygon points="50,6 95,94 5,94" ${at}/>`;
+    else                     forma = `<rect x="6" y="6" width="88" height="88" rx="8" ${at}/>`;
+    return `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${forma}</svg>`;
+  }
+  function renderEscena4(nuevo){
+    $('cSvg').innerHTML = escenaSVG(n4.partes, n4.llenos, {nuevo, pista:n4.pista});
+  }
+  function dibujarEstrellas4(){
+    $('n4Estrellas').innerHTML = CONSTRUCCIONES.map((_,i)=>
+      `<span class="estrella ${i<n4.etapa?'llena':''} ${i===n4.etapa?'actual':''}">★</span>`).join('');
+  }
+  function dibujarGlobo4(){
+    const c = CONSTRUCCIONES[n4.etapa];
+    const pers = $('cPers');
+    pers.textContent = pick(['👷','👷‍♀️','👷‍♂️']);
+    pers.classList.remove('feliz');
+    const globo = $('cGlobo');
+    globo.innerHTML = `<span class="f-quiero">¡Ayúdame a construir</span><span class="c-nom">${c.nombre}</span><span class="f-quiero">!</span>`;
+    globo.style.animation = 'none'; void globo.offsetWidth; globo.style.animation = '';
+  }
+  /* la ciudad en miniatura: crece con cada construcción terminada */
+  function dibujarCiudad4(nuevo){
+    $('cCiudad').innerHTML = '<span class="l-desc-t">Mi ciudad:</span>' +
+      CONSTRUCCIONES.map((c,i)=>{
+        if(i<n4.etapa){
+          const todos = new Set(c.partes.map((_,k)=>k));
+          return `<div class="c-mini ${i===nuevo?'nuevo':''}" title="${c.nombre}">${escenaSVG(c.partes, todos, {mini:true})}</div>`;
+        }
+        return `<div class="c-mini ${i===n4.etapa?'actual':'futuro'}" aria-hidden="true">🚧</div>`;
+      }).join('');
+  }
+  function dibujarBandeja4(){
+    const orden = barajar(n4.partes.map((_,i)=>i));
+    $('cBandeja').innerHTML = orden.map((i,k)=>{
+      const p = n4.partes[i], d = DIM4[p.f];
+      return `<div class="c-pieza" data-i="${i}" data-f="${p.f}" style="--aw:${d.w};--ah:${d.h};--d:${-k*0.4}s" role="button" aria-label="${FORMAS4[p.f]}">`+
+             `<div class="c-pf">${piezaSVG(p.f,p.c)}</div><span class="c-pn">${FORMAS4[p.f]}</span></div>`;
+    }).join('');
+    $('cBandeja').classList.remove('bloqueado');
+  }
+  function mensaje4(html){ $('cMensaje').innerHTML = html; }
+  function brillos4(x,y,n){                                 // chispas sobre la construcción (x,y en el lienzo 100x72)
+    const cont = $('cBrillos');
+    for(let i=0;i<n;i++){
+      const b = document.createElement('div');
+      b.className = 'l-brillo';
+      b.textContent = pick(['✨','⭐','✨','🎉']);
+      b.style.cssText = `left:${Math.max(2,Math.min(92,x+rnd(-10,10)))}%;top:${Math.max(4,Math.min(80,(y+rnd(-8,8))/72*100))}%;animation-delay:${rnd(0,.5).toFixed(2)}s`;
+      cont.appendChild(b);
+      setTimeout(()=>b.remove(), 2200);
+    }
+  }
+
+  /* ----- ¿Sobre qué hueco está el dedo? ----- */
+  function aLienzo4(x,y){
+    const svg = $('cSvg').querySelector('svg');
+    if(!svg) return null;
+    const r = svg.getBoundingClientRect();
+    const k = Math.min(r.width/100, r.height/72);
+    return {x:(x-(r.left+(r.width-100*k)/2))/k, y:(y-(r.top+(r.height-72*k)/2))/k};
+  }
+  function huecoBajo4(x,y){
+    const q = aLienzo4(x,y);
+    if(!q) return -1;
+    let mejor = -1, area = 1e9;
+    n4.partes.forEach((p,i)=>{                              // 1º: el hueco más pequeño que contiene el dedo
+      if(n4.llenos.has(i)) return;
+      if(q.x>=p.x && q.x<=p.x+p.w && q.y>=p.y && q.y<=p.y+p.h && p.w*p.h<area){ area = p.w*p.h; mejor = i; }
+    });
+    if(mejor>=0) return mejor;
+    let md = 1e9;                                           // 2º: el más cercano (un poco de margen para dedos grandes)
+    n4.partes.forEach((p,i)=>{
+      if(n4.llenos.has(i)) return;
+      const m = 4;
+      if(q.x>=p.x-m && q.x<=p.x+p.w+m && q.y>=p.y-m && q.y<=p.y+p.h+m){
+        const d = Math.hypot(q.x-(p.x+p.w/2), q.y-(p.y+p.h/2));
+        if(d<md){ md = d; mejor = i; }
+      }
+    });
+    return mejor;
+  }
+  function resaltarHueco4(idx){
+    $('cSvg').querySelectorAll('.hueco').forEach(h=>h.classList.toggle('sobre', +h.dataset.i===idx));
+  }
+
+  /* ----- Arrastrar figuras ----- */
+  let arr4 = null;
+  function cancelarArrastre4(){
+    if(arr4){ arr4.ghost.remove(); arr4 = null; }
+  }
+  $('cBandeja').addEventListener('pointerdown', e=>{
+    const el = e.target.closest('.c-pieza');
+    if(!el || n4.bloq || arr4 || el.classList.contains('usada') || (e.button!==undefined && e.button>0)) return;
+    e.preventDefault();
+    const i = +el.dataset.i, p = n4.partes[i];
+    const caja = el.querySelector('.c-pf').getBoundingClientRect();
+    const g = document.createElement('div');
+    g.className = 'c-fantasma';
+    g.style.width = (caja.width*1.15)+'px'; g.style.height = (caja.height*1.15)+'px';
+    g.innerHTML = piezaSVG(p.f, p.c);
+    g.style.left = e.clientX+'px'; g.style.top = e.clientY+'px';
+    document.body.appendChild(g);
+    arr4 = {i, f:p.f, el, ghost:g, x0:e.clientX, y0:e.clientY, pid:e.pointerId};
+  });
+  document.addEventListener('pointermove', e=>{
+    if(!arr4 || e.pointerId!==arr4.pid) return;
+    arr4.ghost.style.left = e.clientX+'px'; arr4.ghost.style.top = e.clientY+'px';
+    resaltarHueco4(huecoBajo4(e.clientX,e.clientY));
+  });
+  function soltar4(e){
+    if(!arr4 || e.pointerId!==arr4.pid) return;
+    const a = arr4; arr4 = null;
+    resaltarHueco4(-1);
+    const j = e.type==='pointerup' ? huecoBajo4(e.clientX,e.clientY) : -1;
+    if(j<0){                                                // soltó lejos de cualquier hueco: regresa
+      volver4(a);
+    }else if(n4.partes[j].f===a.f){                         // ¡encaja!
+      a.ghost.remove();
+      colocar4(a.el, j);
+    }else{                                                  // otra figura: no cabe
+      volver4(a);
+      a.el.classList.remove('sacude'); void a.el.offsetWidth; a.el.classList.add('sacude');
+      setTimeout(()=>a.el.classList.remove('sacude'), 520);
+      n4.fallos++;
+      mensaje4('¡Ups! Ahí no cabe un '+FORMAS4[a.f]+'. ¡Busca otro hueco!');
+      if(n4.fallos>=2){                                     // pista: brillan los huecos de esa figura
+        const tk = n4.token;
+        n4.pista = a.f; renderEscena4();
+        setTimeout(()=>{ if(tk===n4.token){ n4.pista = null; renderEscena4(); } }, 1800);
+      }
+    }
+  }
+  function volver4(a){
+    a.ghost.style.transition = 'left .25s, top .25s, opacity .25s';
+    a.ghost.style.left = a.x0+'px'; a.ghost.style.top = a.y0+'px'; a.ghost.style.opacity = '0';
+    setTimeout(()=>a.ghost.remove(), 280);
+  }
+  document.addEventListener('pointerup', soltar4);
+  document.addEventListener('pointercancel', soltar4);
+
+  /* ----- Colocar la figura y terminar la construcción ----- */
+  async function colocar4(el, j){
+    const tk = n4.token, p = n4.partes[j];
+    el.classList.add('usada');
+    n4.llenos.add(j);
+    n4.fallos = 0; n4.pista = null;
+    renderEscena4(j);
+    brillos4(p.x+p.w/2, p.y+p.h/2, 4);
+    mensaje4('¡Un '+FORMAS4[p.f]+'! ¡Muy bien!');
+    if(n4.llenos.size < n4.partes.length) return;
+
+    // ¡construcción completa!
+    n4.bloq = true;
+    $('cBandeja').classList.add('bloqueado');
+    $('cPers').classList.add('feliz');
+    const esc = $('cEscena'); esc.classList.remove('terminado'); void esc.offsetWidth; esc.classList.add('terminado');
+    for(let i=0;i<4;i++) brillos4(rnd(25,75), rnd(15,55), 4);
+    mensaje4('¡Terminaste '+CONSTRUCCIONES[n4.etapa].nombre+'! 🎉');
+    mostrarToast('¡Muy bien!');
+    const hecha = n4.etapa;
+    n4.etapa++;
+    dibujarEstrellas4();
+    dibujarCiudad4(hecha);
+    await dormir(2200); if(tk!==n4.token) return;
+    if(n4.etapa>=CONSTRUCCIONES.length){ mostrarResultado(true, cfgRes4); return; }
+    iniciarEtapa4();
+  }
+
+  /* ----- Etapas, entrar y salir ----- */
+  const cfgRes4 = {
+    textoGano: '¡Qué bien conoces las figuras!',
+    reintentar: ()=>{ $('resultado').classList.add('oculto'); iniciarEtapa4(); },
+    salir: ()=>salirNivel4()
+  };
+  function iniciarEtapa4(){
+    n4.token++;
+    cancelarArrastre4();
+    const c = CONSTRUCCIONES[n4.etapa];
+    n4.partes = c.partes; n4.llenos = new Set(); n4.fallos = 0; n4.pista = null;
+    $('cEscena').classList.remove('terminado');
+    dibujarEstrellas4(); dibujarGlobo4(); dibujarCiudad4(); renderEscena4(); dibujarBandeja4();
+    mensaje4(MSG_INICIO4);
+    n4.bloq = false;
+  }
+  function abrirNivel4(){
+    elSel.classList.add('oculto');
+    $('resultado').classList.add('oculto');
+    $('nivel4').classList.remove('oculto');
+    n4.etapa = 0;
+    iniciarEtapa4();
+  }
+  function salirNivel4(){
+    n4.token++; n4.bloq = true;
+    cancelarArrastre4();
+    $('resultado').classList.add('oculto');
+    $('resultado').innerHTML = '';
+    $('nivel4').classList.add('oculto');
+    elSel.classList.remove('oculto');      // vuelve al menú de temas
+  }
+  $('btnN4Salir').addEventListener('click', salirNivel4);
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && !$('nivel4').classList.contains('oculto')) salirNivel4();
+  });
+
   /* ----- Botones ----- */
   $('btnEmpezar').addEventListener('click', abrirSelector);
   $('btnVolver').addEventListener('click', volverInicio);
@@ -1609,6 +1986,7 @@
     if(actual===0){ abrirNivel1(); return; }   // Tema 1: sonidos de animales
     if(actual===1){ abrirNivel2(); return; }   // Tema 2: fábrica de dulces (números)
     if(actual===2){ abrirNivel3(); return; }   // Tema 3: laboratorio de pintura (colores)
+    if(actual===3){ abrirNivel4(); return; }   // Tema 4: ciudad de figuras (formas geométricas)
     // Aquí se conectarán los demás temas: TEMAS[actual] (índice actual+1)
     console.log('Tema elegido:', actual+1, TEMAS[actual].n);
   });
