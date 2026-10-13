@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jugando Descubro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Fredoka:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cielo1:#6dd5fa; --cielo2:#d9f6ff;
+    --pasto1:#7ed957; --pasto2:#4cc34a; --pasto3:#2fa84a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;font-family:'Fredoka','Baloo 2','Comic Sans MS',cursive,sans-serif}
+
+  /* ---------- ESCENA ---------- */
+  #escena{position:fixed;inset:0;overflow:hidden;
+    background:linear-gradient(180deg,var(--cielo1) 0%,var(--cielo2) 70%);}
+
+  /* Sol */
+  .sol{position:absolute;top:5%;right:8%;width:min(18vw,130px);aspect-ratio:1;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#fff7a8,#ffd93b 60%,#ffb703);
+    box-shadow:0 0 0 12px rgba(255,217,59,.25),0 0 60px 20px rgba(255,217,59,.5);
+    animation:pulso 4s ease-in-out infinite}
+  .sol::before{content:"";position:absolute;inset:-28%;border-radius:50%;
+    background:repeating-conic-gradient(rgba(255,217,59,.55) 0 8deg,transparent 8deg 22deg);
+    -webkit-mask:radial-gradient(circle,transparent 42%,#000 44%,#000 60%,transparent 62%);
+            mask:radial-gradient(circle,transparent 42%,#000 44%,#000 60%,transparent 62%);
+    animation:girar 24s linear infinite}
+  .sol .cara{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:min(7vw,50px)}
+
+  /* Nubes */
+  .nube{position:absolute;left:-30%;background:#fff;border-radius:999px;opacity:.95;
+    animation:nube linear infinite}
+  .nube::before,.nube::after{content:"";position:absolute;background:#fff;border-radius:50%}
+  .nube::before{width:50%;height:160%;left:12%;top:-80%}
+  .nube::after{width:38%;height:130%;right:14%;top:-55%}
+
+  /* Colinas */
+  .colina{position:absolute;left:-10%;width:120%;border-radius:50% 50% 0 0/100% 100% 0 0}
+  .c1{bottom:28%;height:34%;background:linear-gradient(#a6e8a0,#7ed957);opacity:.8}
+  .c2{bottom:14%;height:36%;background:linear-gradient(#7ed957,#4cc34a);left:-30%;width:90%}
+  .c3{bottom:10%;height:34%;background:linear-gradient(#5fcf55,#2fa84a);left:30%;width:90%}
+  .suelo{position:absolute;bottom:0;left:0;right:0;height:18%;
+    background:linear-gradient(#3dba4c,#2a9a42)}
+
+  /* Árboles */
+  .arbol{position:absolute;bottom:12%;transform-origin:50% 100%;animation:mecer 4s ease-in-out infinite}
+  .arbol svg{display:block;width:100%;height:auto}
+
+  /* Flores */
+  .flor{position:absolute;bottom:3%;font-size:clamp(22px,4vw,40px);transform-origin:50% 100%;
+    animation:mecer 3s ease-in-out infinite}
+
+  /* Criaturas voladoras */
+  .vuela{position:absolute;left:-10%;font-size:clamp(26px,5vw,46px);animation:vuela linear infinite}
+  .vuela span{display:inline-block;animation:aleteo .6s ease-in-out infinite}
+
+  /* Animalitos en el pasto */
+  .bicho{position:absolute;bottom:5%;font-size:clamp(34px,6vw,60px);animation:salto 2.4s ease-in-out infinite}
+
+  /* Estrellitas / destellos */
+  .chispa{position:absolute;font-size:clamp(14px,2.4vw,24px);animation:titila 2.5s ease-in-out infinite}
+
+  /* ---------- MENÚ ---------- */
+  #menu{position:relative;z-index:10;height:100%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:clamp(18px,4vh,40px);text-align:center;padding:16px;
+    padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom))}
+
+  .titulo{display:flex;flex-direction:column;align-items:center;line-height:1;
+    animation:entrada 1s cubic-bezier(.2,1.6,.4,1) both}
+  .palabra{display:flex;flex-wrap:nowrap;justify-content:center}
+  .letra{display:inline-block;font-family:'Baloo 2','Fredoka',cursive;font-weight:800;
+    font-size:clamp(44px,11vw,120px);color:var(--c);
+    -webkit-text-stroke:clamp(3px,.6vw,7px) #fff;paint-order:stroke fill;
+    text-shadow:0 clamp(4px,.8vw,9px) 0 rgba(0,0,0,.18);
+    animation:rebote 1.8s ease-in-out infinite;animation-delay:var(--d)}
+  .palabra.grande .letra{font-size:clamp(56px,14vw,150px)}
+  .subtitulo{font-size:clamp(16px,3vw,28px);color:#fff;font-weight:600;
+    text-shadow:0 2px 0 rgba(0,0,0,.25);animation:entrada 1s .3s both}
+
+  .btn{position:relative;border:none;cursor:pointer;font-family:'Baloo 2','Fredoka',cursive;font-weight:800;
+    font-size:clamp(28px,6vw,56px);color:#fff;letter-spacing:2px;
+    padding:.35em 1.3em;border-radius:999px;
+    background:linear-gradient(#ff8a5c,#ff5e62);
+    border:clamp(4px,.7vw,8px) solid #fff;
+    box-shadow:0 clamp(6px,1.2vw,12px) 0 #c93a4a,0 18px 30px rgba(0,0,0,.25);
+    text-shadow:0 3px 0 rgba(0,0,0,.2);
+    animation:latido 1.4s ease-in-out infinite, entrada 1s .6s both;
+    transition:transform .1s}
+  .btn::after{content:"";position:absolute;top:10%;left:10%;width:40%;height:22%;border-radius:999px;
+    background:rgba(255,255,255,.45);transform:rotate(-4deg)}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:active{transform:translateY(8px) scale(.97);box-shadow:0 2px 0 #c93a4a,0 6px 12px rgba(0,0,0,.25);animation:none}
+  .btn:focus-visible{outline:5px solid #fff3a0;outline-offset:6px}
+
+  /* ---------- SELECTOR DE TEMAS ---------- */
+  .oculto{display:none!important}
+
+  #selector{position:relative;z-index:10;height:100%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:clamp(8px,2vh,22px);padding:12px;
+    padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom));
+    --tema:#ff9f1c;--suave:#ffe3b3}
+
+  .sel-titulo{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#fff;text-align:center;
+    font-size:clamp(26px,5.5vw,56px);line-height:1;
+    -webkit-text-stroke:clamp(2px,.4vw,5px) var(--tema);paint-order:stroke fill;
+    text-shadow:0 4px 0 rgba(0,0,0,.2);animation:entrada .8s cubic-bezier(.2,1.6,.4,1) both;
+    transition:-webkit-text-stroke-color .4s}
+
+  .btn-volver{position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;z-index:11;
+    border:4px solid #fff;border-radius:999px;cursor:pointer;
+    font-family:'Baloo 2','Fredoka',cursive;font-weight:800;font-size:clamp(14px,2.4vw,22px);color:#fff;
+    padding:.3em .9em;background:linear-gradient(#1fa2ff,#1070d8);
+    box-shadow:0 5px 0 #0a4c9a,0 8px 14px rgba(0,0,0,.25)}
+  .btn-volver:active{transform:translateY(4px);box-shadow:0 1px 0 #0a4c9a}
+  .btn-volver:focus-visible,.flecha:focus-visible,.punto:focus-visible{outline:4px solid #fff3a0;outline-offset:4px}
+
+  .visor{display:flex;align-items:center;justify-content:center;gap:clamp(6px,2vw,28px);width:100%}
+
+  .flecha{flex:none;width:clamp(54px,10vw,96px);aspect-ratio:1;border-radius:50%;cursor:pointer;
+    border:clamp(4px,.7vw,7px) solid #fff;display:grid;place-items:center;
+    background:linear-gradient(#ffd60a,#ff9f1c);
+    box-shadow:0 8px 0 #c97a00,0 14px 20px rgba(0,0,0,.25);transition:transform .1s}
+  .flecha svg{width:55%;height:55%}
+  .flecha:active{transform:translateY(6px);box-shadow:0 2px 0 #c97a00}
+  .flecha.izq{animation:vaiven-izq 1.2s ease-in-out infinite}
+  .flecha.der{animation:vaiven-der 1.2s ease-in-out infinite}
+  .flecha:active{animation:none}
+
+  .pantalla{width:min(64vw,560px);background:#fff;border-radius:clamp(22px,4vw,38px);overflow:hidden;
+    border:clamp(6px,1vw,12px) solid var(--tema);
+    box-shadow:0 12px 0 rgba(0,0,0,.18),0 24px 40px rgba(0,0,0,.28);
+    transition:border-color .4s}
+  .pantalla.anim-der{animation:entra-der .45s cubic-bezier(.2,1.3,.4,1) both}
+  .pantalla.anim-izq{animation:entra-izq .45s cubic-bezier(.2,1.3,.4,1) both}
+
+  .ilustracion{position:relative;display:grid;place-items:center;overflow:hidden;
+    height:clamp(140px,34vh,300px);
+    background:radial-gradient(circle at 50% 45%,#fff 0%,var(--suave) 100%);transition:background .4s}
+  .principal{font-size:clamp(84px,22vh,190px);line-height:1;
+    filter:drop-shadow(0 8px 0 rgba(0,0,0,.12));animation:rebote-grande 2s ease-in-out infinite}
+  .extra{position:absolute;font-size:clamp(24px,6vh,52px);line-height:1;animation:flota 3s ease-in-out infinite}
+  .extra:nth-child(2){left:8%;top:12%}
+  .extra:nth-child(3){right:8%;top:18%;animation-delay:-.8s}
+  .extra:nth-child(4){left:11%;bottom:10%;animation-delay:-1.6s}
+  .extra:nth-child(5){right:10%;bottom:12%;animation-delay:-2.2s}
+
+  .info{padding:clamp(8px,1.6vh,16px) 14px clamp(10px,2vh,18px);text-align:center;background:#fff}
+  .nivel-tag{display:inline-block;font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#fff;
+    background:var(--tema);border-radius:999px;padding:.1em .9em;font-size:clamp(13px,2.2vw,20px);
+    transition:background .4s}
+  .nombre{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#3d3d6b;line-height:1.05;
+    font-size:clamp(22px,4.6vw,42px);margin-top:.15em}
+  .desc{font-weight:600;color:#666;font-size:clamp(13px,2.3vw,22px);margin-top:.2em}
+
+  .btn-jugar{font-size:clamp(22px,4.5vw,40px)}
+
+  .puntos{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(5px,1vw,9px);max-width:90vw}
+  .punto{width:clamp(10px,1.8vw,16px);aspect-ratio:1;border-radius:50%;border:2px solid #fff;cursor:pointer;
+    background:rgba(255,255,255,.55);transition:transform .25s,background .25s}
+  .punto.activo{background:var(--tema);transform:scale(1.5)}
+
+  /* ---------- NIVEL 1: SONIDOS DE ANIMALES ---------- */
+  #nivel1{position:relative;z-index:10;height:100%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:clamp(6px,1.6vh,18px);padding:12px;
+    padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}
+  .n1-cabecera{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .n1-titulo{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#fff;text-align:center;
+    font-size:clamp(22px,4.6vw,44px);line-height:1;
+    -webkit-text-stroke:clamp(2px,.4vw,5px) #ff9f1c;paint-order:stroke fill;text-shadow:0 4px 0 rgba(0,0,0,.2)}
+  .estrellas{display:flex;gap:6px;font-size:clamp(22px,4vw,38px);line-height:1}
+  .estrella{color:rgba(255,255,255,.7);text-shadow:0 2px 0 rgba(0,0,0,.2);transition:color .3s}
+  .estrella.llena{color:#ffd60a}
+  .estrella.actual{animation:latido 1s ease-in-out infinite}
+
+  .n1-escucha{display:flex;align-items:center;gap:clamp(10px,2.5vw,26px);background:rgba(255,255,255,.75);
+    border-radius:999px;padding:clamp(6px,1.2vh,12px) clamp(12px,2.5vw,26px);box-shadow:0 6px 0 rgba(0,0,0,.12)}
+  .btn-sonido{flex:none;width:clamp(56px,11vh,90px);aspect-ratio:1;border-radius:50%;cursor:pointer;
+    border:clamp(4px,.7vw,7px) solid #fff;background:linear-gradient(#4fc3ff,#1070d8);
+    box-shadow:0 7px 0 #0a4c9a,0 12px 18px rgba(0,0,0,.25);display:grid;place-items:center;transition:transform .1s}
+  .btn-sonido svg{width:58%;height:58%}
+  .btn-sonido:active{transform:translateY(5px);box-shadow:0 2px 0 #0a4c9a}
+  .btn-sonido.sonando{animation:latido .7s ease-in-out infinite}
+  .btn-sonido:disabled{filter:grayscale(.35);cursor:default}
+  .btn-sonido:focus-visible,.animal:focus-visible{outline:4px solid #fff3a0;outline-offset:4px}
+  .ranuras{display:flex;gap:clamp(6px,1.2vw,12px)}
+  .ranura{width:clamp(40px,8vh,64px);aspect-ratio:1;border-radius:50%;background:#fff;border:4px dashed #b9a6ff;
+    display:grid;place-items:center;font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#b9a6ff;
+    font-size:clamp(20px,4vh,32px);line-height:1}
+  .ranura.llena{border-style:solid;border-color:#4cc34a;background:#e6ffe0;animation:pop .4s cubic-bezier(.2,1.8,.4,1)}
+
+  .n1-animales{display:grid;grid-template-columns:repeat(4,auto);justify-content:center;
+    gap:clamp(8px,2vh,22px) clamp(8px,2.4vw,28px)}
+  .celda{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .animal{--t:clamp(54px,min(17vw,13vh),140px);width:var(--t);height:var(--t);border-radius:50%;
+    border:clamp(4px,.7vw,7px) solid #fff;background:radial-gradient(circle at 50% 40%,#fff,#fff3c4);
+    box-shadow:0 8px 0 rgba(0,0,0,.18),0 14px 18px rgba(0,0,0,.2);
+    font-size:calc(var(--t)*.58);line-height:1;display:grid;place-items:center;cursor:pointer;
+    animation:flota-animal 3s ease-in-out infinite;animation-delay:var(--d,0s);transition:transform .1s}
+  .animal:active{transform:scale(.92)}
+  .animal.bien{animation:celebrar .7s ease both;background:radial-gradient(circle,#fff,#bff0b0);border-color:#4cc34a}
+  .animal.mal{animation:sacudir .5s ease both;background:radial-gradient(circle,#fff,#ffc9c9);border-color:#ff5e62}
+  .animal-nombre{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#fff;
+    font-size:clamp(12px,2vw,20px);text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  .n1-animales.bloqueado .animal{pointer-events:none}
+  /* Pantallas anchas (compu, tablet horizontal): 6 columnas x 2 filas */
+  @media (min-aspect-ratio:4/3){
+    .n1-animales{grid-template-columns:repeat(6,auto)}
+    .animal{--t:clamp(54px,min(11vw,19vh),140px)}
+  }
+
+  /* Pantalla de resultado (perdiste / ganaste) */
+  #resultado{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+    background:rgba(40,15,90,.55);padding:16px;animation:fundido .3s both;--rc:#ff5e62}
+  .res-tarjeta{background:#fff;border-radius:36px;border:clamp(6px,1vw,12px) solid var(--rc);
+    box-shadow:0 14px 0 rgba(0,0,0,.2),0 30px 50px rgba(0,0,0,.35);
+    padding:clamp(12px,2.5vh,26px) clamp(18px,4vw,48px);text-align:center;max-height:96vh;
+    display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.5vh,14px);
+    animation:entra-der .5s cubic-bezier(.2,1.5,.4,1) both}
+  .res-monstruo{width:clamp(110px,28vh,220px)}
+  .res-monstruo svg{width:100%;height:auto;display:block}
+  .res-monstruo.triste{animation:tambalear 1.6s ease-in-out infinite}
+  .res-monstruo.feliz{animation:rebote-grande 1.2s ease-in-out infinite}
+  .lagrima{animation:llorar 1.4s ease-in infinite}
+  .res-titulo{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;font-size:clamp(30px,7vw,60px);
+    line-height:1;color:var(--rc)}
+  .res-texto{font-weight:600;color:#666;font-size:clamp(14px,2.6vw,24px)}
+  .res-botones{display:flex;flex-wrap:wrap;gap:clamp(8px,2vw,18px);justify-content:center}
+  .btn-res{font-size:clamp(18px,3.6vw,32px)}
+  .btn-verde{background:linear-gradient(#7ed957,#2fa84a);box-shadow:0 clamp(6px,1.2vw,12px) 0 #1e7a35,0 18px 30px rgba(0,0,0,.25)}
+  .btn-verde:active{box-shadow:0 2px 0 #1e7a35,0 6px 12px rgba(0,0,0,.25)}
+  .btn-azul{background:linear-gradient(#4fc3ff,#1070d8);box-shadow:0 clamp(6px,1.2vw,12px) 0 #0a4c9a,0 18px 30px rgba(0,0,0,.25)}
+  .btn-azul:active{box-shadow:0 2px 0 #0a4c9a,0 6px 12px rgba(0,0,0,.25)}
+
+  .toast{position:fixed;left:50%;top:40%;z-index:40;white-space:nowrap;pointer-events:none;
+    font-family:'Baloo 2','Fredoka',cursive;font-weight:800;font-size:clamp(40px,10vw,96px);color:#fff;
+    -webkit-text-stroke:clamp(3px,.6vw,7px) #4cc34a;paint-order:stroke fill;
+    text-shadow:0 6px 0 rgba(0,0,0,.2);animation:toast 1.4s ease both}
+  .confeti{position:fixed;top:-24px;width:12px;height:18px;z-index:60;pointer-events:none;
+    animation:caer linear forwards}
+
+  /* ---------- NIVEL 2: FÁBRICA DE DULCES ---------- */
+  #nivel2{position:relative;z-index:10;height:100%;display:flex;flex-direction:column;align-items:center;
+    gap:clamp(4px,1.2vh,12px);padding:10px;overflow-y:auto;user-select:none;-webkit-user-select:none;
+    padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  #nivel2::before,#nivel2::after{content:"";flex:1 0 0}
+  .f-fondo{position:fixed;inset:0;z-index:-1;overflow:hidden;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.4) 0 38px,transparent 38px 76px),
+               linear-gradient(180deg,#ffe9f4 0%,#ffcfe6 100%)}
+  .f-tubo{position:absolute;left:0;right:0;top:0;height:clamp(14px,3vh,26px);
+    background:linear-gradient(#e3e8f4,#8e99b3);box-shadow:0 4px 0 rgba(0,0,0,.15)}
+  .f-piso{position:absolute;left:0;right:0;bottom:0;height:20%;border-top:8px solid #ff8fc0;
+    background:repeating-conic-gradient(#fff 0 25%,#ffd9ec 0 50%) 0 0/70px 70px}
+  .engrane{position:absolute;aspect-ratio:1;border-radius:50%;
+    background:radial-gradient(circle,transparent 0 24%,var(--g) 25% 62%,transparent 63%);
+    animation:girar var(--v,14s) linear infinite}
+  .engrane::before{content:"";position:absolute;inset:0;border-radius:50%;
+    background:repeating-conic-gradient(var(--g) 0 11deg,transparent 11deg 30deg);
+    -webkit-mask:radial-gradient(circle,transparent 0 56%,#000 57% 72%,transparent 73%);
+            mask:radial-gradient(circle,transparent 0 56%,#000 57% 72%,transparent 73%)}
+  .n1-titulo.f-tit{-webkit-text-stroke-color:#ff6bb5}
+
+  .f-pedido{display:flex;align-items:center;gap:clamp(10px,2.2vw,22px);max-width:96vw}
+  .f-pers{font-size:clamp(46px,11vh,96px);line-height:1;filter:drop-shadow(0 6px 0 rgba(0,0,0,.12));
+    animation:rebote-grande 2.2s ease-in-out infinite}
+  .f-pers.feliz{animation:celebrar .7s ease both}
+  .f-globo{position:relative;background:#fff;border:clamp(4px,.6vw,7px) solid #ff6bb5;border-radius:26px;
+    padding:clamp(6px,1.2vh,12px) clamp(12px,2.4vw,24px);display:flex;align-items:center;flex-wrap:wrap;
+    gap:clamp(6px,1.4vw,16px);box-shadow:0 6px 0 rgba(0,0,0,.14);animation:entra-izq .5s cubic-bezier(.2,1.4,.4,1) both}
+  .f-globo::before{content:"";position:absolute;left:-16px;top:50%;margin-top:-10px;
+    border:10px solid transparent;border-left:0;border-right:14px solid #ff6bb5}
+  .f-quiero{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#ff6bb5;font-size:clamp(16px,3vw,28px)}
+  .f-linea{display:flex;align-items:center;gap:6px}
+  .f-num{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#3d3d6b;font-size:clamp(34px,8vh,72px);line-height:1}
+  .f-emo{font-size:clamp(30px,7vh,60px);line-height:1}
+  .f-nom{font-weight:600;color:#666;font-size:clamp(12px,2vw,20px)}
+  .f-y{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#ff6bb5;font-size:clamp(18px,3.4vw,30px)}
+
+  .f-mesa{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+    gap:clamp(8px,2.2vw,28px);width:100%}
+  .f-maquinas{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(6px,1.4vw,14px)}
+  .f-maq{--mc:#ff6bb5;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:clamp(6px,1vh,10px) clamp(8px,1.4vw,14px);border-radius:22px;
+    background:linear-gradient(rgba(255,255,255,.28),rgba(0,0,0,.14)),var(--mc);
+    border:clamp(3px,.5vw,6px) solid #fff;box-shadow:0 7px 0 rgba(0,0,0,.2)}
+  .f-maq-tolva{font-size:clamp(14px,2.6vh,24px);line-height:1;background:rgba(255,255,255,.4);
+    border-radius:14px 14px 4px 4px;padding:2px 8px;letter-spacing:-2px}
+  .f-maq-nombre{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#fff;
+    font-size:clamp(13px,2.2vw,20px);text-shadow:0 2px 0 rgba(0,0,0,.3)}
+  .f-fuentes{display:flex;gap:clamp(8px,1.2vw,14px)}
+  .fuente{--s:clamp(48px,min(11vw,11vh),92px);position:relative;width:var(--s);height:var(--s);border-radius:50%;
+    background:radial-gradient(circle at 50% 40%,#fff,#fff3c4);border:4px solid #fff;
+    box-shadow:0 5px 0 rgba(0,0,0,.2);display:grid;place-items:center;font-size:calc(var(--s)*.55);line-height:1;
+    cursor:grab;touch-action:none;transition:transform .1s;
+    animation:flota-animal 3s ease-in-out infinite;animation-delay:var(--d,0s)}
+  .fuente:active{transform:scale(.93)}
+  .fuente.pack{border-radius:26%;background:linear-gradient(#ffe066,#ffb703)}
+  .fuente b{position:absolute;right:-8px;bottom:-8px;background:#ff5e62;color:#fff;border:3px solid #fff;
+    border-radius:999px;font-family:'Baloo 2','Fredoka',cursive;font-size:calc(var(--s)*.3);padding:0 .35em;line-height:1.3}
+  .f-maquinas.bloqueado .fuente{pointer-events:none;opacity:.8}
+
+  .f-zona{display:flex;flex-direction:column;align-items:center;gap:clamp(4px,1vh,10px)}
+  .f-contador{display:flex;gap:clamp(8px,1.6vw,18px);background:#1b1b2f;border:clamp(3px,.5vw,6px) solid #9aa4bf;
+    border-radius:16px;padding:clamp(4px,.8vh,8px) clamp(10px,1.8vw,20px);
+    box-shadow:0 5px 0 rgba(0,0,0,.25),inset 0 0 14px rgba(93,255,122,.15)}
+  .f-led{display:flex;align-items:center;gap:6px;font-family:'Baloo 2','Fredoka',cursive;font-weight:800;
+    color:#5dff7a;text-shadow:0 0 10px rgba(93,255,122,.8);font-size:clamp(20px,4.4vh,40px);line-height:1}
+  .f-led span{font-size:.85em;text-shadow:none}
+  .f-led.mal{color:#ff6b6b;text-shadow:0 0 10px rgba(255,107,107,.8)}
+  .f-led.contando b{animation:latido .3s ease-in-out infinite}
+  .f-caja{position:relative;width:clamp(230px,34vw,420px);height:clamp(110px,24vh,220px);
+    border-radius:10px 10px 22px 22px;background:linear-gradient(#d9a066,#b97a3c);
+    border:clamp(4px,.6vw,7px) solid #8a5a2b;box-shadow:0 8px 0 rgba(0,0,0,.2);
+    transition:box-shadow .2s,transform .2s}
+  .f-caja.sobre{box-shadow:0 0 0 6px #fff3a0,0 0 30px 10px rgba(255,243,160,.8);transform:scale(1.03)}
+  .f-caja.entra{animation:caja-entra .7s cubic-bezier(.2,1.2,.4,1) backwards}
+  .f-caja.sale{animation:caja-sale .9s ease-in forwards}
+  .f-caja.vacia{animation:sacudir .4s ease}
+  .f-caja-int{position:absolute;inset:8px;border-radius:8px;background:#7d4f22;
+    box-shadow:inset 0 6px 12px rgba(0,0,0,.35);display:flex;flex-wrap:wrap;align-content:flex-end;
+    justify-content:center;gap:2px;overflow:hidden;padding:4px}
+  .f-item{font-size:var(--ts,30px);line-height:1;cursor:pointer;animation:pop .3s cubic-bezier(.2,1.8,.4,1) both}
+  .f-item.contando{animation:salta-item .35s ease both}
+  .f-cinta{position:relative;width:clamp(270px,40vw,480px);height:clamp(14px,2.6vh,24px);border-radius:999px;
+    background:#4b4b63;border:3px solid #9aa4bf;overflow:hidden;margin-top:-6px}
+  .f-cinta::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,#6a6a88 0 22px,#4b4b63 22px 44px);animation:banda .8s linear infinite}
+  .f-acciones{display:flex;gap:clamp(8px,2vw,20px);align-items:center;justify-content:center}
+  .btn-chico{font-size:clamp(16px,3vw,26px)}
+  .btn:disabled{filter:grayscale(.5);opacity:.7;cursor:default;animation:none}
+  .f-fantasma{position:fixed;z-index:70;pointer-events:none;font-size:clamp(46px,9vh,80px);line-height:1;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 8px 6px rgba(0,0,0,.3))}
+  .f-fantasma b{position:absolute;right:-10px;bottom:-4px;background:#ff5e62;color:#fff;border:3px solid #fff;
+    border-radius:999px;font-family:'Baloo 2','Fredoka',cursive;font-size:.34em;padding:0 .35em}
+
+  /* ---------- NIVEL 3: LABORATORIO DE PINTURA ---------- */
+  #nivel3{position:relative;z-index:10;height:100%;display:flex;flex-direction:column;align-items:center;
+    gap:clamp(4px,1.2vh,12px);padding:10px;overflow-y:auto;user-select:none;-webkit-user-select:none;
+    padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  #nivel3::before,#nivel3::after{content:"";flex:1 0 0}
+  .l-fondo{position:fixed;inset:0;z-index:-1;overflow:hidden;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 2px,transparent 2px 64px),
+               repeating-linear-gradient(0deg,rgba(255,255,255,.35) 0 2px,transparent 2px 64px),
+               linear-gradient(180deg,#efe7ff 0%,#d5c4ff 100%)}
+  .l-piso{position:absolute;left:0;right:0;bottom:0;height:16%;border-top:8px solid #b79bff;
+    background:repeating-conic-gradient(#fff 0 25%,#e6dcff 0 50%) 0 0/70px 70px}
+  .l-deco{position:absolute;font-size:clamp(28px,6vw,60px);opacity:.5;animation:flota 4s ease-in-out infinite}
+  .n1-titulo.l-tit{-webkit-text-stroke-color:#8b5cf6}
+
+  .l-muestra{display:inline-block;flex:none;width:1.15em;height:1.15em;border-radius:50%;background:var(--c);
+    border:3px solid #fff;box-shadow:0 0 0 2px #b79bff;vertical-align:middle}
+  .f-globo .l-muestra{width:clamp(30px,6vh,52px);height:clamp(30px,6vh,52px);border-width:4px}
+  .l-nom{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#3d3d6b;font-size:clamp(24px,5.5vh,48px);line-height:1}
+
+  .l-desc{display:flex;align-items:center;gap:clamp(5px,1vw,10px);background:rgba(255,255,255,.65);
+    border-radius:999px;padding:4px clamp(8px,1.6vw,16px);box-shadow:0 4px 0 rgba(0,0,0,.1);max-width:96vw;flex-wrap:wrap;justify-content:center}
+  .l-desc-t{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#6d4fd6;font-size:clamp(12px,2vw,18px)}
+  .l-d{width:clamp(22px,4vh,34px);aspect-ratio:1;border-radius:50%;border:3px dashed #b9a6ff;background:#fff;
+    display:grid;place-items:center;font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#b9a6ff;
+    font-size:clamp(12px,2.2vh,18px);line-height:1}
+  .l-d.si{border:3px solid #fff;background:var(--c);box-shadow:0 0 0 2px #b79bff;color:transparent}
+  .l-d.nuevo{animation:pop .5s cubic-bezier(.2,1.8,.4,1)}
+
+  .l-mesa{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(10px,3vw,40px);width:100%}
+  .l-estante{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(8px,1.8vw,18px);
+    background:rgba(255,255,255,.6);border:4px solid #fff;border-radius:24px;
+    padding:clamp(6px,1.2vh,12px) clamp(10px,1.8vw,18px);box-shadow:0 7px 0 rgba(0,0,0,.14)}
+  .l-estante.bloqueado .botella{pointer-events:none;opacity:.75}
+
+  .botella{--w:clamp(52px,min(12vw,11vh),88px);display:flex;flex-direction:column;align-items:center;gap:3px;
+    cursor:grab;touch-action:none;transition:transform .1s;
+    animation:flota-animal 3s ease-in-out infinite;animation-delay:var(--d,0s)}
+  .botella:active{transform:scale(.94)}
+  .bt-tapa{width:calc(var(--w)*.5);height:calc(var(--w)*.22);border-radius:8px 8px 3px 3px;background:#fff;
+    border:3px solid #b79bff;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+  .bt-cuerpo{position:relative;width:var(--w);height:calc(var(--w)*1.05);border-radius:26% 26% 30% 30%;
+    background:var(--pc);border:4px solid #fff;box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 3px #b79bff}
+  .bt-brillo{position:absolute;top:12%;left:14%;width:18%;height:50%;border-radius:999px;background:rgba(255,255,255,.55)}
+  .botella[data-c="blanco"] .bt-brillo{background:rgba(140,120,220,.25)}
+  .bt-nombre{font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#3d3d6b;font-size:clamp(12px,2vw,18px)}
+  .botella.pista .bt-cuerpo{animation:pista .9s ease-in-out infinite}
+
+  .l-zona{display:flex;flex-direction:column;align-items:center;gap:clamp(4px,1vh,10px)}
+  .l-tazon-wrap{position:relative;width:clamp(170px,28vw,280px);height:clamp(140px,28vh,240px)}
+  .l-tazon{position:absolute;inset:0;border-radius:14px 14px 50% 50%/14px 14px 46% 46%;overflow:hidden;
+    background:linear-gradient(rgba(255,255,255,.55),rgba(110,90,200,.16));
+    border:clamp(5px,.8vw,9px) solid #fff;box-shadow:0 0 0 3px #b79bff,0 9px 0 rgba(0,0,0,.18);
+    transition:box-shadow .2s,transform .2s}
+  .l-tazon::after{content:"";position:absolute;top:10%;left:12%;width:12%;height:38%;border-radius:999px;
+    background:rgba(255,255,255,.6);transform:rotate(12deg);pointer-events:none}
+  .l-tazon.sobre{box-shadow:0 0 0 6px #fff3a0,0 0 30px 10px rgba(255,243,160,.8);transform:scale(1.03)}
+  .l-tazon.sacude{animation:sacudir .5s ease}
+  .l-liquido{position:absolute;left:0;right:0;bottom:0;height:72%;overflow:hidden;
+    display:flex;flex-direction:column-reverse}
+  .l-capa{flex:none;width:100%;height:0;background:var(--col);transition:height .7s ease,background .9s ease}
+  .l-remolino{position:absolute;inset:-60%;opacity:0;pointer-events:none;
+    background:conic-gradient(var(--a,#fff),var(--b,#fff),var(--a,#fff),var(--b,#fff),var(--a,#fff),var(--b,#fff),var(--a,#fff))}
+  .l-remolino.gira{animation:remolino 1.6s ease-in-out both}
+  .l-gota{position:absolute;top:-4%;z-index:3;width:clamp(10px,1.8vw,16px);height:clamp(14px,2.4vw,22px);
+    border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--col);border:2px solid #fff;
+    animation:gota .55s ease-in both;animation-delay:var(--dl,0s);pointer-events:none}
+  .l-brillo{position:absolute;z-index:4;font-size:clamp(18px,3.4vw,30px);line-height:1;pointer-events:none;
+    animation:sube-brillo 1.5s ease-out both}
+  .l-msg{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;max-width:92vw;
+    background:#fff;border:4px solid #8b5cf6;border-radius:999px;padding:.2em .9em;box-shadow:0 5px 0 rgba(0,0,0,.14);
+    font-family:'Baloo 2','Fredoka',cursive;font-weight:800;color:#3d3d6b;font-size:clamp(14px,2.6vw,24px);line-height:1.15}
+  .l-fantasma{position:fixed;z-index:70;pointer-events:none;width:clamp(40px,8vh,64px);height:clamp(48px,9.5vh,76px);
+    border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--c);border:4px solid #fff;
+    box-shadow:0 8px 6px rgba(0,0,0,.3);transform:translate(-50%,-50%)}
+
+  @keyframes remolino{0%{opacity:0;transform:rotate(0) scale(.5)}20%{opacity:.95}80%{opacity:.95}100%{opacity:0;transform:rotate(540deg) scale(1)}}
+  @keyframes gota{0%{transform:translateY(-20px);opacity:0}15%{opacity:1}100%{transform:translateY(clamp(90px,17vh,150px));opacity:0}}
+  @keyframes sube-brillo{0%{transform:translateY(0) scale(.4);opacity:0}20%{opacity:1}100%{transform:translateY(-90px) scale(1.2) rotate(40deg);opacity:0}}
+  @keyframes pista{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 3px #b79bff}
+    50%{box-shadow:0 5px 0 rgba(0,0,0,.2),0 0 0 8px #ffe066,0 0 22px 8px rgba(255,224,102,.9)}}
+
+  /* ---------- ANIMACIONES ---------- */
+  @keyframes girar{to{transform:rotate(360deg)}}
+  @keyframes pulso{50%{transform:scale(1.06)}}
+  @keyframes nube{from{transform:translateX(0)}to{transform:translateX(160vw)}}
+  @keyframes mecer{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+  @keyframes rebote{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14%) rotate(3deg)}}
+  @keyframes latido{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  @keyframes entrada{from{opacity:0;transform:translateY(-40px) scale(.7)}to{opacity:1;transform:none}}
+  @keyframes vuela{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(35vw,-6vh)}
+    50%{transform:translate(70vw,5vh)}
+    75%{transform:translate(105vw,-5vh)}
+    100%{transform:translate(125vw,2vh)}}
+  @keyframes aleteo{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.55)}}
+  @keyframes salto{0%,100%{transform:translateY(0)}40%{transform:translateY(-28px)}60%{transform:translateY(-28px)}}
+  @keyframes titila{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1.2)}}
+  @keyframes entra-der{from{opacity:0;transform:translateX(70px) scale(.88)}to{opacity:1;transform:none}}
+  @keyframes entra-izq{from{opacity:0;transform:translateX(-70px) scale(.88)}to{opacity:1;transform:none}}
+  @keyframes rebote-grande{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8%) rotate(4deg)}}
+  @keyframes flota{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(8deg)}}
+  @keyframes vaiven-izq{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
+  @keyframes vaiven-der{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+
+  @keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
+  @keyframes flota-animal{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes celebrar{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-8deg)}60%{transform:scale(1.15) rotate(8deg)}100%{transform:scale(1.08)}}
+  @keyframes sacudir{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+  @keyframes fundido{from{opacity:0}to{opacity:1}}
+  @keyframes tambalear{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  @keyframes llorar{0%{transform:translateY(-6px);opacity:0}25%{opacity:1}100%{transform:translateY(34px);opacity:0}}
+  @keyframes toast{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+    35%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
+  @keyframes caer{to{transform:translateY(110vh) rotate(720deg)}}
+
+  @keyframes salta-item{0%{transform:translateY(0)}40%{transform:translateY(-10px) scale(1.5)}100%{transform:none}}
+  @keyframes caja-sale{to{transform:translateX(130vw)}}
+  @keyframes caja-entra{from{transform:translateX(-130vw)}to{transform:none}}
+  @keyframes banda{to{background-position-x:44px}}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;animation-iteration-count:1!important}
+  }
+</style>
+</head>
+<body>
+
+<div id="escena" aria-hidden="true">
+  <div class="sol"><div class="cara"></div></div>
+  <div id="nubes"></div>
+  <div class="colina c1"></div>
+  <div class="colina c2"></div>
+  <div class="colina c3"></div>
+  <div id="arboles"></div>
+  <div class="suelo"></div>
+  <div id="flores"></div>
+  <div id="voladores"></div>
+  <div id="bichos"></div>
+  <div id="chispas"></div>
+</div>
+
+<main id="menu">
+  <h1 class="titulo" aria-label="Jugando Descubro">
+    <div class="palabra grande" id="p1"></div>
+    <div class="palabra grande" id="p2"></div>
+  </h1>
+  <p class="subtitulo">¡Aprende y diviértete!</p>
+  <button class="btn" id="btnEmpezar" type="button">Empezar</button>
+</main>
+
+<section id="selector" class="oculto" aria-label="Selector de temas">
+  <button class="btn-volver" id="btnVolver" type="button" aria-label="Volver al inicio">&larr; Inicio</button>
+  <h2 class="sel-titulo">¡Elige un tema!</h2>
+
+  <div class="visor">
+    <button class="flecha izq" id="btnAnterior" type="button" aria-label="Tema anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4 7 12l8 8"/></svg>
+    </button>
+
+    <div class="pantalla" id="pantalla" aria-live="polite">
+      <div class="ilustracion" id="ilustracion"></div>
+      <div class="info">
+        <span class="nivel-tag" id="nivelTag"></span>
+        <div class="nombre" id="nombreTema"></div>
+        <div class="desc" id="descTema"></div>
+      </div>
+    </div>
+
+    <button class="flecha der" id="btnSiguiente" type="button" aria-label="Tema siguiente">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 4 8 8-8 8"/></svg>
+    </button>
+  </div>
+
+  <div class="puntos" id="puntos"></div>
+  <button class="btn btn-jugar" id="btnJugar" type="button">¡Jugar!</button>
+</section>
+
+<section id="nivel1" class="oculto" aria-label="Nivel 1: sonidos de animales">
+  <button class="btn-volver" id="btnN1Salir" type="button" aria-label="Volver a los temas">&larr; Temas</button>
+  <div class="n1-cabecera">
+    <h2 class="n1-titulo">¿Quién hace ese sonido?</h2>
+    <div class="estrellas" id="n1Estrellas"></div>
+  </div>
+  <div class="n1-escucha">
+    <button class="btn-sonido" id="btnEscuchar" type="button" aria-label="Escuchar el sonido otra vez">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="#fff"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="ranuras" id="n1Ranuras"></div>
+  </div>
+  <div class="n1-animales bloqueado" id="n1Animales"></div>
+</section>
+
+<section id="nivel2" class="oculto" aria-label="Nivel 2: fábrica de dulces">
+  <div class="f-fondo" aria-hidden="true">
+    <div class="f-tubo"></div>
+    <div class="engrane" style="--g:#ffb703;--v:16s;left:-4vmin;top:9%;width:24vmin"></div>
+    <div class="engrane" style="--g:#ff8fc0;--v:12s;right:-3vmin;top:12%;width:20vmin;animation-direction:reverse"></div>
+    <div class="engrane" style="--g:#4fc3ff;--v:20s;right:6vmin;top:44%;width:14vmin"></div>
+    <div class="engrane" style="--g:#8b5cf6;--v:14s;left:2vmin;top:52%;width:12vmin;animation-direction:reverse"></div>
+    <div class="f-piso"></div>
+  </div>
+
+  <button class="btn-volver" id="btnN2Salir" type="button" aria-label="Volver a los temas">&larr; Temas</button>
+  <div class="n1-cabecera">
+    <h2 class="n1-titulo f-tit">Fábrica de dulces</h2>
+    <div class="estrellas" id="n2Estrellas"></div>
+  </div>
+
+  <div class="f-pedido">
+    <div class="f-pers" id="fPers"></div>
+    <div class="f-globo" id="fGlobo"></div>
+  </div>
+
+  <div class="f-mesa">
+    <div class="f-maquinas" id="fMaquinas"></div>
+    <div class="f-zona">
+      <div class="f-contador" id="fContador" aria-live="polite"></div>
+      <div class="f-caja" id="fCaja"><div class="f-caja-int" id="fCajaInt"></div></div>
+      <div class="f-cinta"></div>
+    </div>
+  </div>
+
+  <div class="f-acciones">
+    <button class="btn btn-verde btn-res" id="btnListo" type="button">¡Listo!</button>
+    <button class="btn btn-azul btn-chico" id="btnVaciar" type="button">Vaciar</button>
+  </div>
+</section>
+
+<section id="nivel3" class="oculto" aria-label="Nivel 3: laboratorio de pintura">
+  <div class="l-fondo" aria-hidden="true">
+    <span class="l-deco" style="left:3%;top:14%">🧪</span>
+    <span class="l-deco" style="right:4%;top:12%;animation-delay:-1.2s">⚗️</span>
+    <span class="l-deco" style="left:5%;top:56%;animation-delay:-2.4s">🎨</span>
+    <span class="l-deco" style="right:5%;top:54%;animation-delay:-.6s">🖌️</span>
+    <div class="l-piso"></div>
+  </div>
+
+  <button class="btn-volver" id="btnN3Salir" type="button" aria-label="Volver a los temas">&larr; Temas</button>
+  <div class="n1-cabecera">
+    <h2 class="n1-titulo l-tit">Laboratorio de pintura</h2>
+    <div class="estrellas" id="n3Estrellas"></div>
+  </div>
+
+  <div class="f-pedido">
+    <div class="f-pers" id="lPers"></div>
+    <div class="f-globo" id="lGlobo"></div>
+  </div>
+
+  <div class="l-desc" id="lDesc"></div>
+
+  <div class="l-mesa">
+    <div class="l-estante" id="lBotellas"></div>
+    <div class="l-zona">
+      <div class="l-tazon-wrap" id="lWrap">
+        <div class="l-tazon" id="lTazon">
+          <div class="l-liquido" id="lCapas"><div class="l-remolino" id="lRemolino"></div></div>
+        </div>
+      </div>
+      <div class="l-msg" id="lMensaje" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="f-acciones">
+    <button class="btn btn-azul btn-chico" id="btnN3Vaciar" type="button">Vaciar</button>
+  </div>
+</section>
+
+<div id="resultado" class="oculto" role="dialog" aria-modal="true"></div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const rnd = (a,b) => Math.random()*(b-a)+a;
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+
+  /* ----- Título con letras de colores ----- */
+  const colores = ['#ff5e62','#ff9f1c','#ffd60a','#4cc34a','#1fa2ff','#8b5cf6','#ff6bb5'];
+  function armarPalabra(texto, contenedor, offset){
+    [...texto].forEach((ch,i)=>{
+      const s = document.createElement('span');
+      s.className = 'letra';
+      s.textContent = ch;
+      s.style.setProperty('--c', colores[(i+offset)%colores.length]);
+      s.style.setProperty('--d', ((i+offset)*0.12)+'s');
+      contenedor.appendChild(s);
+    });
+  }
+  armarPalabra('Jugando', $('p1'), 0);
+  armarPalabra('Descubro', $('p2'), 3);
+
+  /* ----- Nubes ----- */
+  for(let i=0;i<5;i++){
+    const n = document.createElement('div');
+    n.className = 'nube';
+    const w = rnd(90,200);
+    n.style.cssText = `top:${rnd(4,34)}%;width:${w}px;height:${w*.32}px;`+
+      `animation-duration:${rnd(40,80)}s;animation-delay:${-rnd(0,80)}s;opacity:${rnd(.7,1)}`;
+    $('nubes').appendChild(n);
+  }
+
+  /* ----- Árboles (SVG) ----- */
+  function arbolSVG(copa, copa2){
+    return `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+      <rect x="42" y="78" width="16" height="58" rx="6" fill="#a0642d"/>
+      <rect x="42" y="78" width="6" height="58" rx="3" fill="#8a5224"/>
+      <circle cx="50" cy="52" r="38" fill="${copa}"/>
+      <circle cx="28" cy="66" r="24" fill="${copa}"/>
+      <circle cx="72" cy="66" r="24" fill="${copa}"/>
+      <circle cx="40" cy="40" r="14" fill="${copa2}" opacity=".6"/>
+      <circle cx="62" cy="58" r="7" fill="#ff5e62"/>
+      <circle cx="36" cy="64" r="6" fill="#ff5e62"/>
+      <circle cx="56" cy="36" r="6" fill="#ff5e62"/>
+    </svg>`;
+  }
+  const verdes = [['#2fa84a','#7ed957'],['#38b653','#9be26b'],['#27a05f','#6fdc8c']];
+  const posArboles = [3,17,33,52,68,82,94];
+  posArboles.forEach((x,i)=>{
+    const a = document.createElement('div');
+    a.className = 'arbol';
+    const [c1,c2] = pick(verdes);
+    a.style.cssText = `left:${x}%;width:clamp(70px,${rnd(11,17)}vw,190px);`+
+      `animation-duration:${rnd(3.5,6)}s;animation-delay:${-rnd(0,4)}s;`+
+      `bottom:${rnd(11,19)}%;z-index:${i%2}`;
+    a.innerHTML = arbolSVG(c1,c2);
+    $('arboles').appendChild(a);
+  });
+
+  /* ----- Flores y hongos ----- */
+  const flores = ['🌸','🌼','🌷','🌻','🌺','🍄'];
+  for(let i=0;i<16;i++){
+    const f = document.createElement('div');
+    f.className = 'flor';
+    f.textContent = pick(flores);
+    f.style.cssText = `left:${rnd(1,97)}%;bottom:${rnd(1,14)}%;`+
+      `animation-duration:${rnd(2.5,4.5)}s;animation-delay:${-rnd(0,3)}s`;
+    $('flores').appendChild(f);
+  }
+
+  /* ----- Mariposas, pajaritos y abejas ----- */
+  const voladores = ['🦋','🐦','🐝','🦋','🐞'];
+  for(let i=0;i<7;i++){
+    const v = document.createElement('div');
+    v.className = 'vuela';
+    v.innerHTML = `<span>${pick(voladores)}</span>`;
+    v.style.cssText = `top:${rnd(14,62)}%;animation-duration:${rnd(16,34)}s;animation-delay:${-rnd(0,30)}s`;
+    $('voladores').appendChild(v);
+  }
+
+  /* ----- Animalitos saltarines ----- */
+  const bichos = ['🐰','🐿️','🦔','🐸','🐢','🦊'];
+  [8,28,50,72,90].forEach(x=>{
+    const b = document.createElement('div');
+    b.className = 'bicho';
+    b.textContent = pick(bichos);
+    b.style.cssText = `left:${x}%;animation-delay:${-rnd(0,2.4)}s;animation-duration:${rnd(2,3.2)}s`;
+    $('bichos').appendChild(b);
+  });
+
+  /* ----- Chispas / estrellitas ----- */
+  for(let i=0;i<14;i++){
+    const c = document.createElement('div');
+    c.className = 'chispa';
+    c.style.cssText = `left:${rnd(2,96)}%;top:${rnd(3,55)}%;`+
+      `animation-delay:${-rnd(0,2.5)}s;animation-duration:${rnd(1.8,3.5)}s`;
+    $('chispas').appendChild(c);
+  }
+
+  /* =========================================================
+     SELECTOR DE TEMAS
+     ========================================================= */
+  const TEMAS = [
+    {n:'Los animales y sus sonidos',    d:'Reconocer animales y sus sonidos.',                              e:'🐮', x:['🐶','🐱','🐷','🐔'], c:'#ff9f1c', s:'#ffe3b3'},
+    {n:'Los números',                   d:'Identificar números y aprender a contar.',                       e:'🔢', x:['1️⃣','2️⃣','3️⃣','5️⃣'], c:'#1fa2ff', s:'#cfeaff'},
+    {n:'El mundo de los colores',       d:'Reconocer y diferenciar colores.',                               e:'🌈', x:['🔴','🟡','🔵','🟢'], c:'#ff6bb5', s:'#ffd9ec'},
+    {n:'Las formas geométricas',        d:'Identificar círculos, cuadrados y triángulos.',                  e:'🔺', x:['⭕','🟦','⭐','🔷'], c:'#8b5cf6', s:'#e3d8ff'},
+    {n:'Mi cuerpo y sus partes',        d:'Reconocer las partes del cuerpo humano.',                        e:'👧', x:['👀','👂','🖐️','👃'], c:'#ff7a59', s:'#ffdcd1'},
+    {n:'Las frutas divertidas',         d:'Identificar frutas y sus características.',                      e:'🍎', x:['🍌','🍇','🍓','🍊'], c:'#e63946', s:'#ffd4d8'},
+    {n:'El mundo de las emociones',     d:'Reconocer alegría, tristeza, enojo y miedo.',                    e:'😊', x:['😢','😠','😨','😍'], c:'#f4b400', s:'#fff0b8'},
+    {n:'El clima y el tiempo',          d:'Identificar el sol, la lluvia, las nubes y el viento.',          e:'☀️', x:['🌧️','☁️','💨','⚡'], c:'#29a3d9', s:'#d4f1ff'},
+    {n:'Los alimentos saludables',      d:'Reconocer alimentos y hábitos saludables.',                      e:'🥕', x:['🥦','🥛','🍅','🥑'], c:'#4cc34a', s:'#d9f5d2'},
+    {n:'Los objetos y sus funciones',   d:'Aprender para qué sirven objetos cotidianos.',                   e:'🧩', x:['🧸','🪥','✏️','🥄'], c:'#14b8a6', s:'#cdf5ef'},
+    {n:'Los medios de transporte',      d:'Identificar coches, aviones, barcos y trenes.',                  e:'🚗', x:['✈️','🚢','🚂','🚌'], c:'#ef5da8', s:'#ffd6ea'},
+    {n:'Los animales marinos',          d:'Conocer peces, tortugas, delfines y otros animales del mar.',    e:'🐠', x:['🐢','🐬','🐙','🦀'], c:'#0ea5e9', s:'#c9ecff'},
+    {n:'Las letras y las palabras',     d:'Familiarizarse con letras y asociarlas con imágenes.',           e:'🔤', x:['🅰️','📖','✏️','🍎'], c:'#7c5cff', s:'#e0d9ff'},
+    {n:'Memoria y atención',            d:'Encontrar parejas y reconocer imágenes iguales.',                e:'🧠', x:['🃏','🔍','🎴','❓'], c:'#ff8fa3', s:'#ffdbe2'},
+    {n:'Hábitos y rutinas diarias',     d:'Aprender acciones como lavarse las manos, cepillarse los dientes y recoger juguetes.', e:'🧹', x:['🧼','🪥','🧸','🚿'], c:'#84cc16', s:'#e8f8c4'}
+  ];
+
+  const elMenu = $('menu'), elSel = $('selector'), elPantalla = $('pantalla');
+  let actual = 0;
+
+  /* puntos indicadores */
+  TEMAS.forEach((_,i)=>{
+    const p = document.createElement('button');
+    p.type = 'button';
+    p.className = 'punto';
+    p.setAttribute('aria-label','Ir al tema '+(i+1));
+    p.addEventListener('click', ()=> irA(i));
+    $('puntos').appendChild(p);
+  });
+
+  function mostrar(dir){
+    const t = TEMAS[actual];
+    elSel.style.setProperty('--tema', t.c);
+    elSel.style.setProperty('--suave', t.s);
+    $('ilustracion').innerHTML =
+      `<div class="principal">${t.e}</div>` + t.x.map(x=>`<div class="extra">${x}</div>`).join('');
+    $('nivelTag').textContent = 'Tema ' + (actual+1) + ' de ' + TEMAS.length;
+    $('nombreTema').textContent = t.n;
+    $('descTema').textContent = t.d;
+    [...$('puntos').children].forEach((p,i)=> p.classList.toggle('activo', i===actual));
+    elPantalla.classList.remove('anim-der','anim-izq');
+    void elPantalla.offsetWidth;               // reinicia la animación
+    elPantalla.classList.add(dir<0 ? 'anim-izq' : 'anim-der');
+  }
+  function irA(i){
+    if(i===actual) return;
+    const dir = i>actual ? 1 : -1;
+    actual = i;
+    mostrar(dir);
+  }
+  function siguiente(){ actual = (actual+1)%TEMAS.length; mostrar(1); }
+  function anterior(){  actual = (actual-1+TEMAS.length)%TEMAS.length; mostrar(-1); }
+
+  $('btnSiguiente').addEventListener('click', siguiente);
+  $('btnAnterior').addEventListener('click', anterior);
+
+  /* deslizar con el dedo sobre la pantalla */
+  let x0 = null;
+  elPantalla.addEventListener('touchstart', e=>{ x0 = e.touches[0].clientX; }, {passive:true});
+  elPantalla.addEventListener('touchend', e=>{
+    if(x0===null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if(Math.abs(dx) > 40){ dx < 0 ? siguiente() : anterior(); }
+  });
+
+  /* teclado */
+  document.addEventListener('keydown', e=>{
+    if(elSel.classList.contains('oculto')) return;
+    if(e.key==='ArrowRight') siguiente();
+    else if(e.key==='ArrowLeft') anterior();
+    else if(e.key==='Escape') volverInicio();
+  });
+
+  function abrirSelector(){
+    elMenu.classList.add('oculto');
+    elSel.classList.remove('oculto');
+    mostrar(1);
+  }
+  function volverInicio(){
+    elSel.classList.add('oculto');
+    elMenu.classList.remove('oculto');
+  }
+
+  /* =========================================================
+     NIVEL 1: SONIDOS DE ANIMALES
+     ========================================================= */
+
+  /* >>>>>>>>>>>>>>>>>>>>>>>>  AQUÍ VAN TUS SONIDOS  <<<<<<<<<<<<<<<<<<<<<<<<
+     Guarda tus archivos (.m4a o .mp3) junto a este index.html. Si usas otro
+     nombre, carpeta o formato, solo cambia la ruta en el campo "sonido" del
+     animal correspondiente. */
+  const ANIMALES = [
+    {id:'vaca',    nombre:'Vaca',    emoji:'🐮', sonido:'vaca.m4a'},
+    {id:'perro',   nombre:'Perro',   emoji:'🐶', sonido:'perro.m4a'},
+    {id:'gato',    nombre:'Gato',    emoji:'🐱', sonido:'gato.m4a'},
+    {id:'cerdo',   nombre:'Cerdo',   emoji:'🐷', sonido:'cerdo.m4a'},
+    {id:'gallina', nombre:'Gallina', emoji:'🐔', sonido:'gallina.m4a'},
+    {id:'caballo', nombre:'Caballo', emoji:'🐴', sonido:'caballo.m4a'},
+    {id:'oveja',   nombre:'Oveja',   emoji:'🐑', sonido:'oveja.m4a'},
+    {id:'pato',    nombre:'Pato',    emoji:'🦆', sonido:'pato.m4a'},
+    {id:'rana',    nombre:'Rana',    emoji:'🐸', sonido:'rana.m4a'},
+    {id:'elefante',nombre:'Elefante',emoji:'🐘', sonido:'elefante.m4a'},
+    {id:'leon',    nombre:'León',    emoji:'🦁', sonido:'leon.m4a'},
+    {id:'mono',    nombre:'Mono',    emoji:'🐵', sonido:'mono.m4a'}
+  ];
+  /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+
+  /* Cuántos sonidos tiene cada etapa. Con más de 1, suena UN sonido a la vez:
+     el niño encuentra el animal y entonces suena el siguiente. */
+  const ETAPAS = [1,3,3,5,5];
+  const PAUSA_ENTRE_SONIDOS = 600;   // milisegundos (pausa después de acertar, antes del siguiente sonido)
+
+  const n1 = {sec:[], idx:0, etapa:0, token:0, bloq:true, ultimo:null};
+  const malos = new Set();   // animales cuyo sonido falló: ya no se usan en las secuencias
+  const dormir = ms => new Promise(r=>setTimeout(r,ms));
+  const barajar = arr => {
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  };
+  const datosAnimal = id => ANIMALES.find(a=>a.id===id);
+
+  /* ----- Audio ----- */
+  /* Se usa UN SOLO reproductor compartido y se le cambia el archivo en cada sonido.
+     Antes había 12 reproductores (uno por animal) y los navegadores a veces dejaban
+     mudo alguno de ellos, por eso el quinto sonido no se oía. */
+  let reproductor = null, sonidoActual = 0, liberar = null;
+
+  function prepararAudio(){
+    if(reproductor) return;
+    reproductor = new Audio();
+    reproductor.preload = 'auto';
+    // "desbloquea" el audio en móviles: reproduce un silencio dentro del toque del botón
+    reproductor.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+    const p = reproductor.play();
+    if(p && p.catch) p.catch(()=>{});
+  }
+  function detener(){
+    if(reproductor){ try{ reproductor.pause(); }catch(e){} }
+    if(liberar){ const l = liberar; liberar = null; l(); }   // libera la espera de un sonido que se cortó
+  }
+
+  /* reproduce el sonido de un animal. Devuelve una promesa que termina cuando acaba
+     el sonido y vale true si realmente se oyó, o false si falló (archivo faltante,
+     vacío o imposible de reproducir). */
+  function sonar(id){
+    const mi = ++sonidoActual;
+    detener();
+    const datos = datosAnimal(id), a = reproductor;
+    if(!a || !datos) return dormir(600).then(()=>false);
+    return new Promise(res=>{
+      let fin = false, sono = false, t, t2;
+      const limpiar = ()=>{
+        clearTimeout(t); clearTimeout(t2);
+        a.removeEventListener('ended',listo);
+        a.removeEventListener('error',rendirse);
+        a.removeEventListener('playing',empezo);
+      };
+      const listo = ()=>{
+        if(fin) return; fin = true; limpiar(); if(liberar===listo) liberar = null;
+        res(sono && !(a.duration < 0.15));      // un archivo casi vacío cuenta como fallo
+      };
+      const rendirse = ()=>{
+        if(fin) return; fin = true; limpiar(); if(liberar===listo) liberar = null;
+        setTimeout(()=>res(false),600);
+      };
+      const empezo = ()=>{ sono = true; clearTimeout(t2); };
+      a.addEventListener('ended',listo);
+      a.addEventListener('error',rendirse);
+      a.addEventListener('playing',empezo);
+      t = setTimeout(listo,12000);
+      t2 = setTimeout(rendirse,5000);           // si en 5 s no empezó a sonar, se da por fallido
+      liberar = listo;
+      a.muted = false; a.volume = 1;
+      a.src = datos.sonido;                    // cambiar el archivo lo carga desde el inicio
+      const intentar = n=>{
+        if(fin || mi!==sonidoActual) return;
+        const p = a.play();
+        if(p && p.catch) p.catch(()=>{
+          if(fin || mi!==sonidoActual) return;
+          if(n<3) setTimeout(()=>intentar(n+1),200);   // reintenta si el navegador lo interrumpió
+          else rendirse();
+        });
+      };
+      intentar(0);
+    });
+  }
+
+  /* ----- Dibujo de la pantalla ----- */
+  function dibujarEstrellas(){
+    $('n1Estrellas').innerHTML = ETAPAS.map((_,i)=>
+      `<span class="estrella ${i<n1.etapa?'llena':''} ${i===n1.etapa?'actual':''}">★</span>`).join('');
+  }
+  function dibujarRanuras(){
+    $('n1Ranuras').innerHTML = n1.sec.map(()=>'<div class="ranura">?</div>').join('');
+  }
+  function dibujarAnimales(){
+    const cont = $('n1Animales');
+    cont.innerHTML = '';
+    barajar(ANIMALES).forEach((a,i)=>{      // posición distinta en cada etapa
+      const c = document.createElement('div');
+      c.className = 'celda';
+      c.innerHTML = `<button class="animal" type="button" data-id="${a.id}" aria-label="${a.nombre}" style="--d:${-(i*0.4)}s">${a.emoji}</button>`+
+                    `<span class="animal-nombre">${a.nombre}</span>`;
+      cont.appendChild(c);
+    });
+  }
+
+  /* ----- Lógica de etapas ----- */
+  function elegirSecuencia(n){
+    let s = [];
+    for(let intento=0; intento<10; intento++){
+      const base = ANIMALES.filter(a=>!malos.has(a.id));
+      s = barajar(base.length>=n ? base : ANIMALES).slice(0,n).map(a=>a.id);
+      if(s[0]!==n1.ultimo) break;           // evita empezar siempre con el mismo animal
+    }
+    n1.ultimo = s[0];
+    return s;
+  }
+  function bloquear(si){
+    n1.bloq = si;
+    $('n1Animales').classList.toggle('bloqueado', si);
+  }
+  /* reproduce SOLO el sonido que el niño debe encontrar ahora.
+     Si ese sonido falla (archivo faltante o vacío), se cambia por otro animal
+     distinto antes de que el niño lo note, para que nunca se quede sin oír nada. */
+  async function reproducirActual(tk){
+    bloquear(true);
+    $('btnEscuchar').disabled = true;
+    $('btnEscuchar').classList.add('sonando');
+    let ok = await sonar(n1.sec[n1.idx]); if(tk!==n1.token) return;
+    for(let intento=0; !ok && intento<4; intento++){
+      const malo = n1.sec[n1.idx];
+      malos.add(malo);
+      console.warn('No se pudo reproducir el sonido de: '+malo+' ('+datosAnimal(malo).sonido+'). Revisa que el archivo exista, tenga ese nombre exacto y no esté vacío.');
+      const libres = ANIMALES.map(a=>a.id).filter(x=>!malos.has(x) && !n1.sec.includes(x));
+      if(!libres.length) break;
+      n1.sec[n1.idx] = pick(libres);
+      ok = await sonar(n1.sec[n1.idx]); if(tk!==n1.token) return;
+    }
+    $('btnEscuchar').disabled = false;
+    $('btnEscuchar').classList.remove('sonando');
+    bloquear(false);
+  }
+  async function iniciarEtapa(){
+    const tk = ++n1.token;
+    bloquear(true);
+    n1.sec = elegirSecuencia(ETAPAS[n1.etapa]);
+    n1.idx = 0;
+    dibujarEstrellas(); dibujarRanuras(); dibujarAnimales();
+    await dormir(900); if(tk!==n1.token) return;
+    reproducirActual(tk);
+  }
+  async function elegir(btn){
+    if(n1.bloq) return;
+    const id = btn.dataset.id;
+    if(id !== n1.sec[n1.idx]){ fallar(btn); return; }
+    const tk = n1.token;
+    bloquear(true);
+    btn.classList.add('bien');
+    btn.disabled = true;
+    const ran = $('n1Ranuras').children[n1.idx];
+    ran.textContent = datosAnimal(id).emoji;
+    ran.classList.add('llena');
+    n1.idx++;
+    if(n1.idx >= n1.sec.length){               // era el último de la etapa
+      etapaCompleta();                         // ya no vuelve a sonar el animal
+      return;
+    }
+    await dormir(PAUSA_ENTRE_SONIDOS); if(tk!==n1.token) return;
+    reproducirActual(tk);                                          // ahora suena el siguiente
+  }
+  function fallar(btn){
+    bloquear(true);
+    n1.token++;                              // cancela cualquier espera pendiente
+    detener();
+    btn.classList.add('mal');
+    setTimeout(()=>mostrarResultado(false), 700);
+  }
+  async function etapaCompleta(){
+    bloquear(true);
+    const tk = ++n1.token;
+    n1.etapa++;
+    dibujarEstrellas();
+    await dormir(1200); if(tk!==n1.token) return;
+    if(n1.etapa>=ETAPAS.length){ mostrarResultado(true); return; }
+    mostrarToast('¡Muy bien!');
+    await dormir(1500); if(tk!==n1.token) return;
+    iniciarEtapa();
+  }
+
+  /* ----- Mensajes, monstruito y confeti ----- */
+  function mostrarToast(txt){
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = txt;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),1500);
+  }
+  function confeti(){
+    const cols = ['#ff5e62','#ffd60a','#4cc34a','#1fa2ff','#8b5cf6','#ff6bb5'];
+    for(let i=0;i<60;i++){
+      const c = document.createElement('div');
+      c.className = 'confeti';
+      c.style.cssText = `left:${rnd(0,100)}%;background:${pick(cols)};animation-duration:${rnd(2.2,4.2)}s;animation-delay:${rnd(0,1.5)}s`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),6000);
+    }
+  }
+  function monstruoSVG(feliz){
+    const cuerpo='#8b5cf6', barriga='#b79bff', mancha='#6d3fe0', oscuro='#3b1d7a';
+    const brazos = feliz
+      ? `<ellipse cx="26" cy="100" rx="14" ry="30" fill="${cuerpo}" transform="rotate(-35 26 100)"/>
+         <ellipse cx="174" cy="100" rx="14" ry="30" fill="${cuerpo}" transform="rotate(35 174 100)"/>`
+      : `<ellipse cx="28" cy="135" rx="14" ry="30" fill="${cuerpo}" transform="rotate(15 28 135)"/>
+         <ellipse cx="172" cy="135" rx="14" ry="30" fill="${cuerpo}" transform="rotate(-15 172 135)"/>`;
+    const ojos = feliz
+      ? `<circle cx="72" cy="88" r="20" fill="#fff"/><circle cx="128" cy="88" r="20" fill="#fff"/>
+         <circle cx="74" cy="84" r="10" fill="${oscuro}"/><circle cx="130" cy="84" r="10" fill="${oscuro}"/>
+         <circle cx="78" cy="80" r="3.5" fill="#fff"/><circle cx="134" cy="80" r="3.5" fill="#fff"/>`
+      : `<circle cx="72" cy="90" r="20" fill="#fff"/><circle cx="128" cy="90" r="20" fill="#fff"/>
+         <circle cx="72" cy="98" r="9" fill="${oscuro}"/><circle cx="128" cy="98" r="9" fill="${oscuro}"/>
+         <path d="M48 70 L90 60" stroke="${oscuro}" stroke-width="6" stroke-linecap="round"/>
+         <path d="M152 70 L110 60" stroke="${oscuro}" stroke-width="6" stroke-linecap="round"/>
+         <ellipse class="lagrima" cx="58" cy="118" rx="5" ry="8" fill="#4fc3ff"/>
+         <ellipse class="lagrima" cx="142" cy="118" rx="5" ry="8" fill="#4fc3ff" style="animation-delay:.6s"/>`;
+    const boca = feliz
+      ? `<path d="M70 130 Q100 175 130 130 Z" fill="${oscuro}"/><ellipse cx="100" cy="150" rx="14" ry="8" fill="#ff7a9c"/>`
+      : `<path d="M76 154 Q100 130 124 154" fill="none" stroke="${oscuro}" stroke-width="6" stroke-linecap="round"/>`;
+    return `<svg viewBox="0 0 200 215" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M52 52 L40 12 L80 38Z" fill="#ffd60a"/><path d="M148 52 L160 12 L120 38Z" fill="#ffd60a"/>
+      <ellipse cx="70" cy="200" rx="26" ry="12" fill="#ff9f1c"/><ellipse cx="130" cy="200" rx="26" ry="12" fill="#ff9f1c"/>
+      ${brazos}
+      <ellipse cx="100" cy="118" rx="74" ry="82" fill="${cuerpo}"/>
+      <ellipse cx="100" cy="158" rx="44" ry="38" fill="${barriga}"/>
+      <circle cx="40" cy="150" r="7" fill="${mancha}"/><circle cx="160" cy="146" r="9" fill="${mancha}"/>
+      ${ojos}
+      <circle cx="46" cy="120" r="9" fill="#ff9ecb" opacity=".7"/><circle cx="154" cy="120" r="9" fill="#ff9ecb" opacity=".7"/>
+      ${boca}
+    </svg>`;
+  }
+  function mostrarResultado(gano, cfg){
+    cfg = cfg || {};                          // sin cfg = Nivel 1
+    const salir = cfg.salir || salirNivel;
+    const reintentar = cfg.reintentar || iniciarEtapa;
+    const textoGano = cfg.textoGano || '¡Qué bien conoces a los animales!';
+    const r = $('resultado');
+    r.style.setProperty('--rc', gano ? '#4cc34a' : '#ff5e62');
+    r.innerHTML = `<div class="res-tarjeta">
+      <div class="res-monstruo ${gano?'feliz':'triste'}">${monstruoSVG(gano)}</div>
+      <div class="res-titulo">${gano?'¡Ganaste!':'¡Perdiste!'}</div>
+      <div class="res-texto">${gano?textoGano:'¡No te preocupes, inténtalo otra vez!'}</div>
+      <div class="res-botones">${gano
+        ? '<button class="btn btn-verde btn-res" id="resMenu" type="button">Volver al menú</button>'
+        : '<button class="btn btn-verde btn-res" id="resReintentar" type="button">Volver a intentar</button>'+
+          '<button class="btn btn-azul btn-res" id="resMenu" type="button">Salir</button>'}
+      </div></div>`;
+    r.classList.remove('oculto');
+    $('resMenu').addEventListener('click', salir);
+    const rei = $('resReintentar');
+    if(rei) rei.addEventListener('click', ()=>{ r.classList.add('oculto'); reintentar(); });  // repite la etapa actual
+    if(gano) confeti();
+  }
+
+  /* ----- Entrar y salir del nivel ----- */
+  function abrirNivel1(){
+    prepararAudio();
+    malos.clear();
+    elSel.classList.add('oculto');
+    $('resultado').classList.add('oculto');
+    $('nivel1').classList.remove('oculto');
+    $('btnEscuchar').disabled = false;
+    $('btnEscuchar').classList.remove('sonando');
+    n1.etapa = 0;
+    iniciarEtapa();
+  }
+  function salirNivel(){
+    n1.token++; bloquear(true); detener();
+    $('resultado').classList.add('oculto');
+    $('resultado').innerHTML = '';
+    $('nivel1').classList.add('oculto');
+    elSel.classList.remove('oculto');      // vuelve al menú de temas
+  }
+  $('n1Animales').addEventListener('click', e=>{
+    const b = e.target.closest('.animal');
+    if(b) elegir(b);
+  });
+  $('btnEscuchar').addEventListener('click', ()=>{ if(!n1.bloq) reproducirActual(n1.token); });
+  $('btnN1Salir').addEventListener('click', salirNivel);
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && !$('nivel1').classList.contains('oculto')) salirNivel();
+  });
+
+  /* =========================================================
+     NIVEL 2: FÁBRICA DE DULCES (los números del 1 al 50)
+     ========================================================= */
+  const PRODUCTOS = [
+    {id:'caramelo',  nombre:'caramelos',  emoji:'🍬', color:'#ff6bb5'},
+    {id:'paleta',    nombre:'paletas',    emoji:'🍭', color:'#8b5cf6'},
+    {id:'chocolate', nombre:'chocolates', emoji:'🍫', color:'#a0643a'},
+    {id:'galleta',   nombre:'galletas',   emoji:'🍪', color:'#ff9f1c'},
+    {id:'dona',      nombre:'donas',      emoji:'🍩', color:'#ef5da8'},
+    {id:'pastelito', nombre:'pastelitos', emoji:'🧁', color:'#1fa2ff'}
+  ];
+  const PERSONAJES = ['🐻','🐰','🐱','🐶','🐼','🦊','🐯','🐸'];
+
+  /* Las 5 etapas: rangos = cantidad (mínimo,máximo) que se pide de cada producto.
+     packs = aparece también la bolsa de 10.  distractor = hay una máquina de un dulce
+     que NO se pidió (para no equivocarse). */
+  const ETAPAS_F = [
+    {rangos:[[1,5]],           packs:false, distractor:false},
+    {rangos:[[6,10]],          packs:false, distractor:false},
+    {rangos:[[1,5],[6,12]],    packs:false, distractor:false},
+    {rangos:[[11,25],[1,9]],   packs:true,  distractor:false},
+    {rangos:[[26,50],[10,30]], packs:true,  distractor:true}
+  ];
+  /* true = las máquinas muestran en vivo cuántos dulces van en la caja (más fácil) */
+  const AYUDA_CONTADOR = false;
+
+  const n2 = {etapa:0, token:0, bloq:true, pedido:[], items:[], ultimo:''};
+  const entero = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+  const prod = id => PRODUCTOS.find(p=>p.id===id);
+  const mayus = t => t.charAt(0).toUpperCase()+t.slice(1);
+
+  function generarPedido(cfg){
+    let pedido, extra, firma;
+    for(let k=0;k<10;k++){
+      const tipos = barajar(PRODUCTOS);
+      pedido = barajar(cfg.rangos.map((r,i)=>({tipo:tipos[i], n:entero(r[0],r[1])})));
+      extra = cfg.distractor ? tipos[cfg.rangos.length] : null;
+      firma = pedido.map(p=>p.tipo.id+p.n).join();
+      if(firma!==n2.ultimo) break;          // no repite el mismo pedido dos veces seguidas
+    }
+    n2.ultimo = firma;
+    return {pedido, extra};
+  }
+
+  /* ----- Dibujo de la pantalla ----- */
+  function dibujarEstrellas2(){
+    $('n2Estrellas').innerHTML = ETAPAS_F.map((_,i)=>
+      `<span class="estrella ${i<n2.etapa?'llena':''} ${i===n2.etapa?'actual':''}">★</span>`).join('');
+  }
+  function dibujarPedido(){
+    const pers = $('fPers');
+    pers.textContent = pick(PERSONAJES);
+    pers.classList.remove('feliz');
+    const globo = $('fGlobo');
+    globo.innerHTML = '<span class="f-quiero">¡Quiero!</span>' +
+      n2.pedido.map(p=>`<div class="f-linea"><span class="f-num">${p.n}</span><span class="f-emo">${p.tipo.emoji}</span><span class="f-nom">${p.tipo.nombre}</span></div>`)
+        .join('<span class="f-y">y</span>');
+    globo.style.animation = 'none'; void globo.offsetWidth; globo.style.animation = '';   // reinicia la animación
+  }
+  function dibujarMaquinas(cfg, extra){
+    const lista = barajar(n2.pedido.map(p=>p.tipo).concat(extra?[extra]:[]));
+    $('fMaquinas').innerHTML = lista.map((t,i)=>
+      `<div class="f-maq" style="--mc:${t.color}">
+         <div class="f-maq-tolva">${t.emoji.repeat(3)}</div>
+         <div class="f-maq-nombre">${mayus(t.nombre)}</div>
+         <div class="f-fuentes">
+           <div class="fuente" data-tipo="${t.id}" data-n="1" style="--d:${-i*0.5}s" role="button" aria-label="1 ${t.nombre}">${t.emoji}</div>
+           ${cfg.packs ? `<div class="fuente pack" data-tipo="${t.id}" data-n="10" style="--d:${-i*0.5-0.7}s" role="button" aria-label="Bolsa de 10 ${t.nombre}">${t.emoji}<b>10</b></div>` : ''}
+         </div>
+       </div>`).join('');
+  }
+  function dibujarLed(ids, valor){
+    $('fContador').innerHTML = ids.map(id=>
+      `<div class="f-led" data-tipo="${id}"><span>${prod(id).emoji}</span><b>${valor===undefined?'--':valor}</b></div>`).join('');
+  }
+  function ajustarItems(){
+    const n = n2.items.length, esc = Math.min(1, Math.max(.62, window.innerHeight/700));
+    const base = n<=8 ? 40 : n<=18 ? 31 : n<=32 ? 25 : n<=50 ? 21 : 17;
+    $('fCajaInt').style.setProperty('--ts', Math.round(base*esc)+'px');
+  }
+  function actualizarLed(){
+    if(!AYUDA_CONTADOR) return;
+    n2.pedido.forEach(p=>{
+      const b = $('fContador').querySelector(`[data-tipo="${p.tipo.id}"] b`);
+      if(b) b.textContent = n2.items.filter(i=>i.tipo===p.tipo.id).length;
+    });
+  }
+
+  /* ----- La caja ----- */
+  function agregar(tipo, n){
+    const cont = $('fCajaInt');
+    for(let i=0;i<n;i++){
+      const el = document.createElement('span');
+      el.className = 'f-item';
+      el.textContent = prod(tipo).emoji;
+      el.style.animationDelay = (i*25)+'ms';
+      cont.appendChild(el);
+      n2.items.push({tipo, el});
+    }
+    ajustarItems(); actualizarLed();
+  }
+  function quitarItem(el){
+    const i = n2.items.findIndex(x=>x.el===el);
+    if(i<0) return;
+    n2.items.splice(i,1); el.remove();
+    ajustarItems(); actualizarLed();
+  }
+  function vaciarCaja(){
+    n2.items = [];
+    $('fCajaInt').innerHTML = '';
+    ajustarItems(); actualizarLed();
+  }
+  $('fCajaInt').addEventListener('click', e=>{
+    const it = e.target.closest('.f-item');
+    if(it && !n2.bloq) quitarItem(it);          // tocar un dulce de la caja lo saca
+  });
+  $('btnVaciar').addEventListener('click', ()=>{ if(!n2.bloq) vaciarCaja(); });
+
+  /* ----- Arrastrar dulces a la caja ----- */
+  let arr = null;
+  function sobreCaja(x,y){
+    const r = $('fCaja').getBoundingClientRect(), m = 14;
+    return x>=r.left-m && x<=r.right+m && y>=r.top-m && y<=r.bottom+m;
+  }
+  function cancelarArrastre(){
+    if(arr){ arr.ghost.remove(); arr = null; }
+    $('fCaja').classList.remove('sobre');
+  }
+  $('fMaquinas').addEventListener('pointerdown', e=>{
+    const f = e.target.closest('.fuente');
+    if(!f || n2.bloq || arr || (e.button!==undefined && e.button>0)) return;
+    e.preventDefault();
+    const n = +f.dataset.n, t = prod(f.dataset.tipo);
+    const g = document.createElement('div');
+    g.className = 'f-fantasma';
+    g.innerHTML = t.emoji + (n>1 ? '<b>'+n+'</b>' : '');
+    g.style.left = e.clientX+'px'; g.style.top = e.clientY+'px';
+    document.body.appendChild(g);
+    arr = {tipo:f.dataset.tipo, n, ghost:g, x0:e.clientX, y0:e.clientY, movio:false, id:e.pointerId};
+  });
+  document.addEventListener('pointermove', e=>{
+    if(!arr || e.pointerId!==arr.id) return;
+    arr.ghost.style.left = e.clientX+'px'; arr.ghost.style.top = e.clientY+'px';
+    if(Math.hypot(e.clientX-arr.x0, e.clientY-arr.y0) > 8) arr.movio = true;
+    $('fCaja').classList.toggle('sobre', sobreCaja(e.clientX,e.clientY));
+  });
+  function soltar(e){
+    if(!arr || e.pointerId!==arr.id) return;
+    const a = arr; arr = null;
+    $('fCaja').classList.remove('sobre');
+    const dentro = e.type==='pointerup' && sobreCaja(e.clientX,e.clientY);
+    const toque  = e.type==='pointerup' && !a.movio;           // un toque simple también agrega
+    if(dentro || toque) agregar(a.tipo, a.n);
+    else{                                                       // soltó fuera de la caja: regresa
+      a.ghost.style.transition = 'left .25s, top .25s, opacity .25s';
+      a.ghost.style.left = a.x0+'px'; a.ghost.style.top = a.y0+'px'; a.ghost.style.opacity = '0';
+    }
+    setTimeout(()=>a.ghost.remove(), (dentro||toque) ? 0 : 280);
+  }
+  document.addEventListener('pointerup', soltar);
+  document.addEventListener('pointercancel', soltar);
+
+  /* ----- Entregar el pedido: las máquinas cuentan ----- */
+  function botones2(dis){
+    $('btnListo').disabled = dis; $('btnVaciar').disabled = dis;
+    $('fMaquinas').classList.toggle('bloqueado', dis);
+  }
+  const cfgRes2 = {
+    textoGano: '¡Qué bien sabes contar!',
+    reintentar: ()=>{ $('resultado').classList.add('oculto'); iniciarEtapa2(); },   // repite la etapa con otro pedido
+    salir: ()=>salirNivel2()
+  };
+  async function entregar(){
+    if(n2.bloq) return;
+    if(!n2.items.length){
+      const c = $('fCaja'); c.classList.remove('vacia'); void c.offsetWidth; c.classList.add('vacia');
+      return;
+    }
+    n2.bloq = true;
+    const tk = ++n2.token;
+    botones2(true);
+    const ids = [...new Set(n2.pedido.map(p=>p.tipo.id).concat(n2.items.map(i=>i.tipo)))];
+    dibujarLed(ids, 0);
+    let ok = true;
+    for(const id of ids){
+      const pedido = n2.pedido.find(p=>p.tipo.id===id);
+      const esperado = pedido ? pedido.n : 0;
+      const its = n2.items.filter(i=>i.tipo===id);
+      const fila = $('fContador').querySelector(`[data-tipo="${id}"]`);
+      const num = fila.querySelector('b');
+      const dt = Math.max(60, Math.min(200, 2500/Math.max(1,its.length)));
+      fila.classList.add('contando');
+      for(let i=0;i<its.length;i++){
+        its[i].el.classList.add('contando');
+        num.textContent = i+1;
+        await dormir(dt); if(tk!==n2.token) return;
+      }
+      fila.classList.remove('contando');
+      if(its.length!==esperado){ ok = false; fila.classList.add('mal'); }
+      await dormir(350); if(tk!==n2.token) return;
+    }
+    if(ok){
+      $('fPers').classList.add('feliz');
+      n2.etapa++;
+      dibujarEstrellas2();
+      mostrarToast('¡Pedido listo!');
+      await dormir(1000); if(tk!==n2.token) return;
+      $('fCaja').classList.add('sale');
+      await dormir(1000); if(tk!==n2.token) return;
+      if(n2.etapa>=ETAPAS_F.length){ mostrarResultado(true, cfgRes2); return; }
+      iniciarEtapa2();
+    }else{
+      await dormir(900); if(tk!==n2.token) return;
+      mostrarResultado(false, cfgRes2);
+    }
+  }
+  $('btnListo').addEventListener('click', entregar);
+
+  /* ----- Etapas, entrar y salir ----- */
+  function iniciarEtapa2(){
+    n2.token++;
+    cancelarArrastre();
+    const cfg = ETAPAS_F[n2.etapa];
+    const g = generarPedido(cfg);
+    n2.pedido = g.pedido;
+    dibujarEstrellas2(); dibujarPedido(); dibujarMaquinas(cfg, g.extra); vaciarCaja();
+    dibujarLed(n2.pedido.map(p=>p.tipo.id));
+    const caja = $('fCaja');
+    caja.classList.remove('sale','entra','vacia'); void caja.offsetWidth; caja.classList.add('entra');
+    botones2(false);
+    n2.bloq = false;
+  }
+  function abrirNivel2(){
+    elSel.classList.add('oculto');
+    $('resultado').classList.add('oculto');
+    $('nivel2').classList.remove('oculto');
+    n2.etapa = 0; n2.ultimo = '';
+    iniciarEtapa2();
+  }
+  function salirNivel2(){
+    n2.token++; n2.bloq = true;
+    cancelarArrastre();
+    $('resultado').classList.add('oculto');
+    $('resultado').innerHTML = '';
+    $('nivel2').classList.add('oculto');
+    elSel.classList.remove('oculto');      // vuelve al menú de temas
+  }
+  $('btnN2Salir').addEventListener('click', salirNivel2);
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && !$('nivel2').classList.contains('oculto')) salirNivel2();
+  });
+
+  /* =========================================================
+     NIVEL 3: LABORATORIO DE PINTURA (mezclar colores)
+     ========================================================= */
+  const PINTURAS = {
+    rojo:     {nombre:'Rojo',     hex:'#e63946'},
+    amarillo: {nombre:'Amarillo', hex:'#ffd60a'},
+    azul:     {nombre:'Azul',     hex:'#1e88ff'},
+    blanco:   {nombre:'Blanco',   hex:'#ffffff'}
+  };
+  /* Todas las mezclas posibles de dos pinturas */
+  const MEZCLAS = [
+    {a:'rojo',     b:'amarillo', id:'naranja',  nombre:'naranja',        hex:'#ff8c1a'},
+    {a:'amarillo', b:'azul',     id:'verde',    nombre:'verde',          hex:'#2fbf4a'},
+    {a:'rojo',     b:'azul',     id:'morado',   nombre:'morado',         hex:'#8b3fd1'},
+    {a:'rojo',     b:'blanco',   id:'rosa',     nombre:'rosa',           hex:'#ff8fc0'},
+    {a:'azul',     b:'blanco',   id:'celeste',  nombre:'celeste',        hex:'#7fd3ff'},
+    {a:'amarillo', b:'blanco',   id:'claro',    nombre:'amarillo claro', hex:'#fff09a'}
+  ];
+  /* Las 5 etapas: qué pinturas hay en el estante y qué color se pide (se elige uno al azar) */
+  const ETAPAS_L = [
+    {botes:['rojo','amarillo','azul'],           metas:['naranja']},
+    {botes:['rojo','amarillo','azul'],           metas:['verde']},
+    {botes:['rojo','amarillo','azul'],           metas:['morado']},
+    {botes:['rojo','amarillo','azul','blanco'],  metas:['rosa','celeste']},
+    {botes:['rojo','amarillo','azul','blanco'],  metas:['naranja','verde','morado','rosa','celeste']}
+  ];
+  const MSG_INICIO3 = 'Arrastra dos pinturas al frasco para mezclarlas.';
+
+  const n3 = {etapa:0, token:0, bloq:true, objetivo:'', colores:[], fallos:0, ultimo:'', desc:new Set()};
+  const mezcla3 = (a,b) => MEZCLAS.find(m=>(m.a===a&&m.b===b)||(m.a===b&&m.b===a));
+  const meta3 = () => MEZCLAS.find(m=>m.id===n3.objetivo);
+
+  /* ----- Dibujo de la pantalla ----- */
+  function dibujarEstrellas3(){
+    $('n3Estrellas').innerHTML = ETAPAS_L.map((_,i)=>
+      `<span class="estrella ${i<n3.etapa?'llena':''} ${i===n3.etapa?'actual':''}">★</span>`).join('');
+  }
+  function dibujarMeta3(){
+    const m = meta3();
+    const pers = $('lPers');
+    pers.textContent = pick(PERSONAJES);
+    pers.classList.remove('feliz');
+    const globo = $('lGlobo');
+    globo.innerHTML = `<span class="f-quiero">¡Quiero pintar de</span>`+
+      `<span class="l-muestra" style="--c:${m.hex}"></span>`+
+      `<span class="l-nom">${m.nombre}</span><span class="f-quiero">!</span>`;
+    globo.style.animation = 'none'; void globo.offsetWidth; globo.style.animation = '';
+  }
+  function dibujarBotellas3(cfg){
+    $('lBotellas').innerHTML = barajar(cfg.botes).map((id,i)=>{
+      const p = PINTURAS[id];
+      return `<div class="botella" data-c="${id}" style="--pc:${p.hex};--d:${-i*0.5}s" role="button" aria-label="Pintura ${p.nombre.toLowerCase()}">`+
+             `<div class="bt-tapa"></div><div class="bt-cuerpo"><span class="bt-brillo"></span></div>`+
+             `<div class="bt-nombre">${p.nombre}</div></div>`;
+    }).join('');
+  }
+  function dibujarDescubiertos3(nuevo){
+    $('lDesc').innerHTML = '<span class="l-desc-t">Colores que descubrí:</span>' +
+      MEZCLAS.map(m=> n3.desc.has(m.id)
+        ? `<div class="l-d si ${m.id===nuevo?'nuevo':''}" style="--c:${m.hex}" title="${m.nombre}" aria-label="${m.nombre}"></div>`
+        : '<div class="l-d">?</div>').join('');
+  }
+  function mensaje3(html){ $('lMensaje').innerHTML = html; }
+  function botones3(dis){
+    $('btnN3Vaciar').disabled = dis;
+    $('lBotellas').classList.toggle('bloqueado', dis);
+  }
+  function sacudirTazon3(){
+    const t = $('lTazon'); t.classList.remove('sacude'); void t.offsetWidth; t.classList.add('sacude');
+  }
+  function pista3(){
+    const m = meta3();
+    document.querySelectorAll('#lBotellas .botella').forEach(b=>{
+      b.classList.toggle('pista', b.dataset.c===m.a || b.dataset.c===m.b);
+    });
+  }
+
+  /* ----- El frasco ----- */
+  function vaciarTazon3(){
+    n3.colores = [];
+    $('lCapas').querySelectorAll('.l-capa').forEach(c=>c.remove());
+    $('lRemolino').classList.remove('gira');
+    $('lTazon').classList.remove('sobre','sacude');
+    mensaje3(MSG_INICIO3);
+  }
+  async function verter3(id){
+    const hex = PINTURAS[id].hex, wrap = $('lWrap');
+    for(let i=0;i<5;i++){                                   // gotitas que caen
+      const g = document.createElement('div');
+      g.className = 'l-gota';
+      g.style.cssText = `left:calc(50% + ${Math.round(rnd(-28,28))}px);--col:${hex};--dl:${(i*0.07).toFixed(2)}s`;
+      wrap.appendChild(g);
+      setTimeout(()=>g.remove(), 1000);
+    }
+    await dormir(450);
+    const capa = document.createElement('div');             // el líquido sube
+    capa.className = 'l-capa';
+    capa.style.setProperty('--col', hex);
+    $('lCapas').appendChild(capa);
+    void capa.offsetWidth;
+    capa.style.height = '50%';
+    await dormir(750);
+  }
+  function brillos3(){
+    const wrap = $('lWrap');
+    for(let i=0;i<9;i++){
+      const b = document.createElement('div');
+      b.className = 'l-brillo';
+      b.textContent = pick(['✨','🫧','✨','⭐']);
+      b.style.cssText = `left:${rnd(8,84)}%;top:${rnd(25,70)}%;animation-delay:${rnd(0,.7).toFixed(2)}s`;
+      wrap.appendChild(b);
+      setTimeout(()=>b.remove(), 2400);
+    }
+  }
+  async function agregarColor3(id){
+    if(n3.bloq) return;
+    if(n3.colores.includes(id)){                            // el mismo color dos veces: se avisa, sin castigo
+      sacudirTazon3();
+      mensaje3('¡Ya pusiste '+PINTURAS[id].nombre.toLowerCase()+'! Elige otro color.');
+      return;
+    }
+    n3.bloq = true; botones3(true);
+    const tk = ++n3.token;
+    n3.colores.push(id);
+    await verter3(id); if(tk!==n3.token) return;
+    if(n3.colores.length<2){
+      mensaje3('<span class="l-muestra" style="--c:'+PINTURAS[id].hex+'"></span> Pusiste '+PINTURAS[id].nombre.toLowerCase()+'. ¡Ahora elige otro color!');
+      n3.bloq = false; botones3(false);
+      return;
+    }
+    await mezclar3(tk);
+  }
+  async function mezclar3(tk){
+    const c1 = n3.colores[0], c2 = n3.colores[1];
+    const m = mezcla3(c1,c2);
+    const rem = $('lRemolino');
+    rem.style.setProperty('--a', PINTURAS[c1].hex);
+    rem.style.setProperty('--b', PINTURAS[c2].hex);
+    rem.classList.remove('gira'); void rem.offsetWidth; rem.classList.add('gira');
+    mensaje3('¡Mezclando! 🌀');
+    brillos3();
+    await dormir(800); if(tk!==n3.token) return;
+    $('lCapas').querySelectorAll('.l-capa').forEach(c=>c.style.setProperty('--col', m.hex));   // aparece el color nuevo
+    await dormir(950); if(tk!==n3.token) return;
+    n3.desc.add(m.id);
+    dibujarDescubiertos3(m.id);
+    mensaje3('<span class="l-muestra" style="--c:'+m.hex+'"></span> ¡Hiciste '+m.nombre+'!');
+
+    if(m.id===n3.objetivo){                                 // ¡era el color pedido!
+      $('lPers').classList.add('feliz');
+      n3.etapa++;
+      dibujarEstrellas3();
+      mostrarToast('¡Muy bien!');
+      await dormir(1700); if(tk!==n3.token) return;
+      if(n3.etapa>=ETAPAS_L.length){ mostrarResultado(true, cfgRes3); return; }
+      iniciarEtapa3();
+    }else{                                                  // otro color: se muestra y se intenta de nuevo
+      n3.fallos++;
+      sacudirTazon3();
+      mensaje3('<span class="l-muestra" style="--c:'+m.hex+'"></span> Hiciste '+m.nombre+'. ¡Yo quiero '+meta3().nombre+'!');
+      await dormir(2200); if(tk!==n3.token) return;
+      vaciarTazon3();
+      if(n3.fallos>=2) pista3();                            // tras 2 intentos, las pinturas correctas brillan
+      n3.bloq = false; botones3(false);
+    }
+  }
+  $('btnN3Vaciar').addEventListener('click', ()=>{ if(!n3.bloq) vaciarTazon3(); });
+
+  /* ----- Arrastrar pinturas al frasco (o tocarlas) ----- */
+  let arr3 = null;
+  function sobreTazon3(x,y){
+    const r = $('lTazon').getBoundingClientRect(), m = 18;
+    return x>=r.left-m && x<=r.right+m && y>=r.top-m && y<=r.bottom+m;
+  }
+  function cancelarArrastre3(){
+    if(arr3){ arr3.ghost.remove(); arr3 = null; }
+    $('lTazon').classList.remove('sobre');
+  }
+  $('lBotellas').addEventListener('pointerdown', e=>{
+    const b = e.target.closest('.botella');
+    if(!b || n3.bloq || arr3 || (e.button!==undefined && e.button>0)) return;
+    e.preventDefault();
+    const g = document.createElement('div');
+    g.className = 'l-fantasma';
+    g.style.setProperty('--c', PINTURAS[b.dataset.c].hex);
+    g.style.left = e.clientX+'px'; g.style.top = e.clientY+'px';
+    document.body.appendChild(g);
+    arr3 = {id:b.dataset.c, ghost:g, x0:e.clientX, y0:e.clientY, movio:false, pid:e.pointerId};
+  });
+  document.addEventListener('pointermove', e=>{
+    if(!arr3 || e.pointerId!==arr3.pid) return;
+    arr3.ghost.style.left = e.clientX+'px'; arr3.ghost.style.top = e.clientY+'px';
+    if(Math.hypot(e.clientX-arr3.x0, e.clientY-arr3.y0) > 8) arr3.movio = true;
+    $('lTazon').classList.toggle('sobre', sobreTazon3(e.clientX,e.clientY));
+  });
+  function soltar3(e){
+    if(!arr3 || e.pointerId!==arr3.pid) return;
+    const a = arr3; arr3 = null;
+    $('lTazon').classList.remove('sobre');
+    const dentro = e.type==='pointerup' && sobreTazon3(e.clientX,e.clientY);
+    const toque  = e.type==='pointerup' && !a.movio;            // un toque simple también la agrega
+    if(dentro || toque) agregarColor3(a.id);
+    else{                                                       // soltó fuera del frasco: regresa
+      a.ghost.style.transition = 'left .25s, top .25s, opacity .25s';
+      a.ghost.style.left = a.x0+'px'; a.ghost.style.top = a.y0+'px'; a.ghost.style.opacity = '0';
+    }
+    setTimeout(()=>a.ghost.remove(), (dentro||toque) ? 0 : 280);
+  }
+  document.addEventListener('pointerup', soltar3);
+  document.addEventListener('pointercancel', soltar3);
+
+  /* ----- Etapas, entrar y salir ----- */
+  const cfgRes3 = {
+    textoGano: '¡Qué bien mezclas los colores!',
+    reintentar: ()=>{ $('resultado').classList.add('oculto'); iniciarEtapa3(); },
+    salir: ()=>salirNivel3()
+  };
+  function iniciarEtapa3(){
+    n3.token++;
+    cancelarArrastre3();
+    const cfg = ETAPAS_L[n3.etapa];
+    const cand = cfg.metas.filter(m=>m!==n3.ultimo);        // no repite el mismo color pedido dos veces seguidas
+    n3.objetivo = pick(cand.length ? cand : cfg.metas);
+    n3.ultimo = n3.objetivo;
+    n3.fallos = 0;
+    dibujarEstrellas3(); dibujarMeta3(); dibujarBotellas3(cfg); dibujarDescubiertos3(); vaciarTazon3();
+    botones3(false);
+    n3.bloq = false;
+  }
+  function abrirNivel3(){
+    elSel.classList.add('oculto');
+    $('resultado').classList.add('oculto');
+    $('nivel3').classList.remove('oculto');
+    n3.etapa = 0; n3.ultimo = ''; n3.desc = new Set();
+    iniciarEtapa3();
+  }
+  function salirNivel3(){
+    n3.token++; n3.bloq = true;
+    cancelarArrastre3();
+    $('resultado').classList.add('oculto');
+    $('resultado').innerHTML = '';
+    $('nivel3').classList.add('oculto');
+    elSel.classList.remove('oculto');      // vuelve al menú de temas
+  }
+  $('btnN3Salir').addEventListener('click', salirNivel3);
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && !$('nivel3').classList.contains('oculto')) salirNivel3();
+  });
+
+  /* ----- Botones ----- */
+  $('btnEmpezar').addEventListener('click', abrirSelector);
+  $('btnVolver').addEventListener('click', volverInicio);
+  $('btnJugar').addEventListener('click', function(){
+    if(actual===0){ abrirNivel1(); return; }   // Tema 1: sonidos de animales
+    if(actual===1){ abrirNivel2(); return; }   // Tema 2: fábrica de dulces (números)
+    if(actual===2){ abrirNivel3(); return; }   // Tema 3: laboratorio de pintura (colores)
+    // Aquí se conectarán los demás temas: TEMAS[actual] (índice actual+1)
+    console.log('Tema elegido:', actual+1, TEMAS[actual].n);
+  });
+})();
+</script>
+</body>
+</html>
